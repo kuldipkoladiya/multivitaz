@@ -9,7 +9,7 @@ export default function Home() {
     const [success, setSuccess] = useState(false);
 
     // ✅ VARIANT
-    const [variant, setVariant] = useState<"30" | "60">("30");
+    const [variant, setVariant] = useState<keyof typeof variants>("30");
 
     // ✅ FAKE NOTIFICATION
     const [notification, setNotification] = useState<any>(null);
@@ -30,7 +30,7 @@ export default function Home() {
     });
 
     const WHATSAPP_NUMBER = "919638470305";
-    const RAZORPAY_LINK = "https://rzp.io/l/YOUR_LINK";
+    // const RAZORPAY_LINK = "https://rzp.io/l/YOUR_LINK";
 
     // ✅ VARIANTS DATA
     const variants = {
@@ -38,27 +38,15 @@ export default function Home() {
             label: "30 Tablets",
             price: 899,
             oldPrice: 1499,
-            images: [
-                "/images/1.jpg",
-                "/images/2.jpg",
-                "/images/3.jpg",
-                "/images/4.jpg",
-                "/images/5.jpg",
-            ],
+            images: ["/images/1.jpg","/images/2.jpg","/images/3.jpg","/images/4.jpg","/images/5.jpg"],
         },
         "60": {
             label: "60 Tablets",
             price: 1499,
             oldPrice: 2499,
-            images: [
-                "/images/6.jpg",
-                "/images/7.jpg",
-                "/images/8.jpg",
-                "/images/9.jpg",
-                "/images/10.jpg",
-            ],
+            images: ["/images/6.jpg","/images/7.jpg","/images/8.jpg","/images/9.jpg","/images/10.jpg"],
         },
-    };
+    } as const;
 
     const selectedVariant = variants[variant];
     const price = selectedVariant.price;
