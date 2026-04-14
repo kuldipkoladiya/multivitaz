@@ -9,7 +9,7 @@ export default function Home() {
     const [success, setSuccess] = useState(false);
 
     // ✅ VARIANT
-    const [variant, setVariant] = useState("30");
+    const [variant, setVariant] = useState<"30" | "60">("30");
 
     // ✅ FAKE NOTIFICATION
     const [notification, setNotification] = useState<any>(null);
@@ -253,12 +253,12 @@ Variant: ${selectedVariant.label}
 
                     {/* VARIANT */}
                     <div className="flex gap-2 mt-4">
-                        {Object.keys(variants).map((v) => (
+                        {(Object.keys(variants) as Array<keyof typeof variants>).map((v) => (
                             <button
                                 key={v}
                                 onClick={() => setVariant(v)}
-                                className={`px-4 py-2 rounded-full border ${
-                                    variant === v ? "bg-black text-white" : ""
+                                className={`px-4 py-2 rounded-full border transition ${
+                                    variant === v ? "bg-black text-white" : "bg-white hover:bg-gray-100"
                                 }`}
                             >
                                 {variants[v].label}
