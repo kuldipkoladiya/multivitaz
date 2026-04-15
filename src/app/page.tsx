@@ -29,6 +29,7 @@ export default function Home() {
         "trial": {
             label: "Free Trial – 10 Days",
             price: 0,
+            codPrice: 0,
             oldPrice: 280,
             isFree: true,
             deliveryCharge: 99,
@@ -133,7 +134,7 @@ export default function Home() {
 
     // Determine base price based on payment method
     const basePrice = (variant === "30" || variant === "60")
-        ? (isUPI ? selectedVariant.price : (selectedVariant as any).codPrice)
+        ? (isUPI ? selectedVariant.price : selectedVariant.codPrice)
         : selectedVariant.price;
 
     const oldPrice = selectedVariant.oldPrice;
@@ -1676,7 +1677,7 @@ export default function Home() {
                                         <div className="flex items-center justify-between mb-3">
                                             <span className="font-bold text-slate-700 text-sm sm:text-base">Package</span>
                                             <span className="text-sm sm:text-base font-bold text-amber-700 bg-amber-100 px-3 py-1 rounded-lg">
-                                                {isFreeVariant ? 'Free Trial – 10 Days' : `${payment === 'upi' ? 'Prepaid Order' : 'COD Order'} ${selectedVariant.label}`}
+                                                Free Trial – 10 Days
                                             </span>
                                         </div>
                                         <div className="flex items-center justify-between mb-3">
