@@ -22,11 +22,11 @@ body {
   background: #f1f5f9; 
 }
 ::-webkit-scrollbar-thumb {
-  background: #10b981; 
+  background: #f59e0b; 
   border-radius: 10px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #059669; 
+  background: #d97706; 
 }
 
 /* Targeted hidden scrollbar / custom thinner scrollbar */
@@ -46,9 +46,9 @@ body {
   background: transparent;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #10b981;
+  background: #f59e0b;
   border-radius: 10px;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #059669;
+  background: #d97706;
 }
