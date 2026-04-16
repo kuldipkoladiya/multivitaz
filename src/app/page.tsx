@@ -449,6 +449,12 @@ export default function Home() {
                 amount: order.amount,
                 currency: "INR",
                 order_id: order.id,
+                method: {
+                    upi: true,
+                    card: true,
+                    netbanking: true,
+                    wallet: true
+                },
 
                 handler: async function (response: any) {
                     await fetch("https://multivitaz-be.vercel.app/verify-payment", {
