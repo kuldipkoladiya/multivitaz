@@ -52,7 +52,7 @@ export default function Home() {
         },
         "60": {
             label: "60 Tablet – 2 Month",
-            price: 899,
+            price: 1, //899
             codPrice: 949,
             oldPrice: 1680,
             isFree: false,
