@@ -120,7 +120,7 @@ export default function Home() {
         pincode: "",
     });
 
-    const WHATSAPP_NUMBER = "919638470305";
+    const WHATSAPP_NUMBER = "918469387000";
 
     // ✅ MOCK VIDEOS
     const videos = [
@@ -204,6 +204,10 @@ export default function Home() {
     // reset image when variant changes
     useEffect(() => {
         setCurrent(0);
+        // Force prepaid (UPI) for free trial variant
+        if (variant === "trial") {
+            setPayment("upi");
+        }
     }, [variant]);
 
     // 🔥 UPDATED NOTIFICATION LOGIC (WITH LOCATION)
@@ -370,11 +374,13 @@ export default function Home() {
                 doc.text("FREE", 165, totalY + 14);
             }
 
-            doc.setFontSize(14);
-            doc.setFont("helvetica", "bold");
-            doc.setTextColor(217, 119, 6); // Amber-600
-            doc.text("Total Payable:", 130, totalY + 25);
-            doc.text(`Rs. ${grandTotal}`, 165, totalY + 25);
+            if (isFreeVariant) {
+                doc.text("Total Payable (Prepaid):", 130, totalY + 25);
+                doc.text(`Rs. ${grandTotal}`, 165, totalY + 25);
+            } else {
+                doc.text("Total Payable:", 130, totalY + 25);
+                doc.text(`Rs. ${grandTotal}`, 165, totalY + 25);
+            }
 
             // Footer
             doc.setFontSize(10);
@@ -395,12 +401,12 @@ export default function Home() {
             ? `🎁 FREE TRIAL Order\nProduct: MULTIVITAZ Hair Grow+\nVariant: ${selectedVariant.label}\n\n👤 Name: ${form.name}\n📱 Mobile: ${form.mobile}\n📧 Email: ${form.email}\n🏠 Address: ${form.address}\n🏙️ City: ${form.city}\n📍 Pincode: ${form.pincode}\n\n📦 Qty: 1\n💰 Product: FREE (₹0)\n🚚 Delivery Charge: ₹${deliveryCharge}\n💰 Total: ₹${deliveryCharge}\n💳 Payment: COD`
             : `🛒 Order Details\nProduct: MULTIVITAZ Hair Grow+\nVariant: ${payment === 'upi' ? 'Prepaid Order' : 'COD Order'} ${selectedVariant.label}\n\n👤 Name: ${form.name}\n📱 Mobile: ${form.mobile}\n📧 Email: ${form.email}\n🏠 Address: ${form.address}\n🏙️ City: ${form.city}\n📍 Pincode: ${form.pincode}\n\n📦 Qty: ${qty}\n🚚 Delivery: FREE\n💰 Total: ₹${total}\n💳 Payment: ${payment}`;
 
-        if (isFreeVariant || payment === "cod") {
-            // Mark trial as claimed in localStorage
-            if (isFreeVariant) {
+        if (payment === "cod" && !isFreeVariant) {
+            // Mark trial as claimed in localStorage if it was trial (though now trial is prepaid)
+            if (variant === "trial") {
                 localStorage.setItem("multivitaz_trial_claimed", "true");
                 setTrialClaimed(true);
-                setVariant("30"); // switch away from trial variant immediately
+                setVariant("30"); 
             }
 
             // Auto-download receipt
@@ -414,7 +420,7 @@ export default function Home() {
                     variant: selectedVariant.label,
                     qty: isFreeVariant ? 1 : qty,
                     total: grandTotal,
-                    payment: isFreeVariant ? "Free Trial" : payment.toUpperCase()
+                    payment: isFreeVariant ? "Prepaid (Free Trial)" : payment.toUpperCase()
                 })
             }).catch(err => console.error("Email notification failed", err));
 
@@ -430,7 +436,7 @@ export default function Home() {
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ amount: total }),
+                body: JSON.stringify({ amount: grandTotal }),
             });
 
             const order = await res.json();
@@ -450,8 +456,8 @@ export default function Home() {
                         body: JSON.stringify({
                             ...response,
                             formData: form,
-                            qty,
-                            total,
+                            qty: isFreeVariant ? 1 : qty,
+                            total: grandTotal,
                             variant: selectedVariant.label,
                         }),
                     });
@@ -502,18 +508,29 @@ export default function Home() {
         const [isPlaying, setIsPlaying] = useState(false);
         const videoRef = useRef<HTMLVideoElement | null>(null);
 
-        const handlePlay = () => {
-            if (videoRef.current) {
-                if (isPlaying) {
-                    if ("pause" in videoRef.current) {
-                        videoRef.current.pause();
-                    }
-                } else {
-                    if ("play" in videoRef.current) {
-                        videoRef.current.play();
-                    }
+        const handleVideoAction = (e: React.MouseEvent) => {
+            e.stopPropagation();
+            const video = videoRef.current;
+            if (!video) return;
+
+            try {
+                if (video.requestFullscreen) {
+                    video.requestFullscreen();
+                } else if ((video as any).webkitRequestFullscreen) {
+                    (video as any).webkitRequestFullscreen();
+                } else if ((video as any).msRequestFullscreen) {
+                    (video as any).msRequestFullscreen();
                 }
-                setIsPlaying(!isPlaying);
+            } catch (err) {
+                console.error("Fullscreen request failed", err);
+            }
+
+            if (!isPlaying) {
+                video.play().catch(err => console.error("Play failed", err));
+                setIsPlaying(true);
+            } else {
+                video.pause();
+                setIsPlaying(false);
             }
         };
 
@@ -526,10 +543,10 @@ export default function Home() {
                 <video
                     ref={videoRef}
                     src={vid.url}
-                    className="absolute inset-0 w-full h-full object-cover"
+                    className="absolute inset-0 w-full h-full object-cover cursor-pointer"
                     loop
                     playsInline
-                    onClick={handlePlay}
+                    onClick={handleVideoAction}
                 />
 
                 {!isPlaying && (
@@ -546,9 +563,9 @@ export default function Home() {
                 </div>
 
                 <button
-                    onClick={handlePlay}
+                    onClick={handleVideoAction}
                     className="absolute inset-0 w-full h-full z-30 opacity-0 cursor-pointer"
-                    aria-label="Toggle Play"
+                    aria-label="Open Fullscreen"
                 />
             </div>
         );
@@ -660,7 +677,7 @@ export default function Home() {
                 )}
             </AnimatePresence>
 
-            <main className="max-w-6xl mx-auto px-4 sm:px-6 pt-8 sm:pt-16 pb-32 sm:pb-40">
+            <main className="max-w-6xl mx-auto px-4 sm:px-6 pt-6 sm:pt-10 pb-32 sm:pb-40">
                 {/* HERO SECTION */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-12 lg:gap-16 items-start">
 
@@ -907,7 +924,7 @@ export default function Home() {
                 </div>
 
                 {/* VIDEOS SECTION */}
-                <div className="mt-20 sm:mt-28">
+                <div className="mt-12 sm:mt-16">
                     <div className="flex items-center gap-3 mb-6 sm:mb-8 justify-center sm:justify-start">
                         <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-amber-100 flex items-center justify-center shrink-0">
                             <Play className="w-5 h-5 sm:w-6 sm:h-6 text-amber-600 ml-1" />
@@ -924,7 +941,7 @@ export default function Home() {
                 </div>
 
                 {/* BEFORE & AFTER RESULTS SECTION */}
-                <section className="mt-16 sm:mt-28">
+                <section className="mt-12 sm:mt-16">
                     <div className="text-center mb-8 sm:mb-12">
                         <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 mb-3 sm:mb-4">
                             Before & After Results
@@ -1020,7 +1037,7 @@ export default function Home() {
                 </section>
 
                 {/* CONTENT SECTIONS */}
-                <div className="mt-20 sm:mt-28 grid lg:grid-cols-3 gap-8">
+                <div className="mt-12 sm:mt-16 grid lg:grid-cols-3 gap-8">
 
                     {/* MAIN CONTENT (LEFT) */}
                     <div className="lg:col-span-2 space-y-8">
@@ -1169,7 +1186,7 @@ export default function Home() {
                 </div>
 
                 {/* HOW TO ORDER SECTION */}
-                <section className="mt-16 sm:mt-24">
+                <section className="mt-12 sm:mt-16">
                     <div className="text-center mb-8 sm:mb-12">
                         <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-amber-100 text-amber-600 mb-4 shadow-sm border border-amber-200">
                             <ShoppingCart className="w-6 h-6" />
@@ -1207,7 +1224,7 @@ export default function Home() {
                 </section>
 
                 {/* OUR PROMISE SECTION */}
-                <section className="mt-16 sm:mt-24">
+                <section className="mt-12 sm:mt-16">
                     <h2 className="text-2xl sm:text-3xl font-extrabold text-center text-slate-900 mb-8 sm:mb-12">
                         Our Promise To You
                     </h2>
@@ -1234,7 +1251,7 @@ export default function Home() {
                 </section>
 
                 {/* NEED HELP SECTION */}
-                <section className="mt-16 sm:mt-24">
+                <section className="mt-12 sm:mt-16">
                     <div className="bg-white rounded-[2rem] p-6 sm:p-8 md:p-10 shadow-sm border border-slate-100/50 flex flex-col md:flex-row items-center justify-between gap-8">
                         <div>
                             <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 mb-2 flex items-center gap-3">
@@ -1259,10 +1276,10 @@ export default function Home() {
                 </section>
 
                 {/* EDITORIAL BENEFITS SECTION */}
-                <section className="mt-24 sm:mt-40 overflow-hidden">
+                <section className="mt-12 sm:mt-16 overflow-hidden">
                     <div className="max-w-6xl mx-auto px-4 sm:px-6">
                         {/* Intro Header */}
-                        <div className="mb-20 sm:mb-32 text-center">
+                        <div className="mb-12 sm:mb-16 text-center">
                             <h2 className="text-4xl sm:text-6xl font-black text-slate-900 leading-tight tracking-tight">
                                 Transform Your Hair <br className="hidden sm:block" />
                                 <span className="text-amber-500 italic font-serif">The Natural Way.</span>
@@ -1270,7 +1287,7 @@ export default function Home() {
                             <div className="w-24 h-1 bg-amber-500 mx-auto mt-8 rounded-full" />
                         </div>
 
-                        <div className="space-y-32 sm:space-y-48">
+                        <div className="space-y-10 sm:space-y-12">
                             {/* Block 1: Image Left, Text Right */}
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 sm:gap-24 items-center">
                                 <motion.div
@@ -1371,7 +1388,7 @@ export default function Home() {
                 </section>
 
                 {/* FAQ ACCORDION SECTION */}
-                <section className="mt-16 sm:mt-24">
+                <section className="mt-12 sm:mt-16">
                     <div className="text-center mb-8 sm:mb-12">
                         <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-amber-100 text-amber-600 mb-4 shadow-sm border border-amber-200">
                             <MessageCircle className="w-6 h-6" />
@@ -1712,7 +1729,7 @@ export default function Home() {
                                         </div>
                                         <div className="flex items-center justify-between mb-3">
                                             <span className="font-bold text-slate-700 text-sm sm:text-base">Payment</span>
-                                            <span className="text-sm sm:text-base font-bold text-amber-600 flex items-center gap-1"><Banknote className="w-4 h-4" /> Cash on Delivery</span>
+                                            <span className="text-sm sm:text-base font-bold text-amber-600 flex items-center gap-1"><Zap className="w-4 h-4" /> Online Payment (Prepaid)</span>
                                         </div>
                                         <div className="mt-4 pt-4 border-t border-slate-200 flex items-center justify-between">
                                             <p className="text-slate-500 font-semibold text-sm sm:text-base">Total Payable</p>
@@ -1779,13 +1796,15 @@ export default function Home() {
                                                     <Activity className="w-4 h-4 sm:w-5 sm:h-5 mx-auto" />
                                                     UPI / Online
                                                 </button>
-                                                <button
-                                                    onClick={() => setPayment("cod")}
-                                                    className={`p-2 sm:p-3 rounded-xl border-2 font-bold text-xs sm:text-sm transition-all text-center flex flex-col items-center gap-1 sm:gap-2 ${payment === "cod" ? "border-amber-500 bg-amber-50/50 text-amber-700" : "border-slate-200 bg-white text-slate-500 hover:border-slate-300"}`}
-                                                >
-                                                    <Building className="w-4 h-4 sm:w-5 sm:h-5 mx-auto" />
-                                                    Cash Delivery
-                                                </button>
+                                                {!isFreeVariant && (
+                                                    <button
+                                                        onClick={() => setPayment("cod")}
+                                                        className={`p-2 sm:p-3 rounded-xl border-2 font-bold text-xs sm:text-sm transition-all text-center flex flex-col items-center gap-1 sm:gap-2 ${payment === "cod" ? "border-amber-500 bg-amber-50/50 text-amber-700" : "border-slate-200 bg-white text-slate-500 hover:border-slate-300"}`}
+                                                    >
+                                                        <Building className="w-4 h-4 sm:w-5 sm:h-5 mx-auto" />
+                                                        Cash Delivery
+                                                    </button>
+                                                )}
                                             </div>
                                         </div>
 
