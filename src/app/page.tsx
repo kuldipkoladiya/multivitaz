@@ -752,9 +752,9 @@ export default function Home() {
                                         <div className="bg-amber-100 text-amber-700 px-3 py-1 rounded-lg font-bold text-xs sm:text-sm ml-2 flex items-center gap-1">
                                             <Gift className="w-3.5 h-3.5" /> 100% OFF
                                         </div>
-                                        <div className="w-full mt-2 flex items-center gap-1.5 text-xs text-amber-700 font-semibold">
-                                            {/*<Truck className="w-3.5 h-3.5" /> Delivery Charge: ₹{deliveryCharge}*/}
-                                        </div>
+                                        {/*<div className="w-full mt-2 flex items-center gap-1.5 text-xs text-amber-700 font-semibold">*/}
+                                        {/*    /!*<Truck className="w-3.5 h-3.5" /> Delivery Charge: ₹{deliveryCharge}*!/*/}
+                                        {/*</div>*/}
                                     </>
                                 ) : (
                                     <>
