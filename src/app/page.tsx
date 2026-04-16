@@ -26,7 +26,7 @@ export default function Home() {
 
     const WhatsAppIcon = (props: any) => (
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" {...props}>
-            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.414 0 .018 5.396.015 12.03c0 2.12.559 4.191 1.62 6.06L0 24l6.117-1.604a11.845 11.845 0 005.932 1.577h.005c6.632 0 12.03-5.396 12.033-12.03a11.85 11.85 0 00-3.528-8.503z" />
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.414 0 .018 5.396.015 12.03c0 2.12.559 4.191 1.62 6.06L0 24l6.117-1.604a11.845 11.845 0 005.932 1.577h.005c6.632 0 12.03-5.396 12.033-12.03a11.85 11.85 0 00-3.528-8.503z"/>
         </svg>
     );
 
@@ -38,7 +38,7 @@ export default function Home() {
             codPrice: 0,
             oldPrice: 280,
             isFree: true,
-            deliveryCharge: 1,
+            deliveryCharge: 99,
             images: ["/images/1.jpg", "/images/2.jpg", "/images/11.jpg", "/images/12.jpg", "/images/15.jpg", "/images/16.jpg", "/images/17.jpg"],
         },
         "30": {
@@ -52,7 +52,7 @@ export default function Home() {
         },
         "60": {
             label: "60 Tablet – 2 Month",
-            price: 1, //899
+            price: 899,
             codPrice: 949,
             oldPrice: 1680,
             isFree: false,
@@ -303,196 +303,108 @@ export default function Home() {
         setFaqForm({ name: "", mobile: "", question: "" });
     };
 
-    const validateEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-    const validateMobile = (mobile: string) => /^[6-9]\d{9}$/.test(mobile);
-    const validatePincode = (pincode: string) => /^\d{6}$/.test(pincode);
-
     const isFormValid =
-        form.name.trim().length >= 3 &&
-        validateMobile(form.mobile) &&
-        validateEmail(form.email) &&
-        form.address.trim().length >= 10 &&
-        form.city.trim().length >= 2 &&
-        validatePincode(form.pincode);
+        form.name &&
+        form.mobile &&
+        form.email &&
+        form.address &&
+        form.city &&
+        form.pincode;
 
-    const generateAndDownloadReceipt = async (orderId: string = "N/A", paymentMethod: string = "Online") => {
+    const generateAndDownloadReceipt = (orderId: string = "N/A") => {
         try {
             const doc = new jsPDF();
             const date = new Date().toLocaleString();
-            const primaryColor = [245, 158, 11]; // Amber-500
-            const secondaryColor = [30, 41, 59]; // Slate-800
-            const lightColor = [148, 163, 184]; // Slate-400
 
-            // Load Logo
-            const loadImage = (url: string): Promise<HTMLImageElement> => {
-                return new Promise((resolve, reject) => {
-                    const img = new Image();
-                    img.crossOrigin = "Anonymous";
-                    img.src = url;
-                    img.onload = () => resolve(img);
-                    img.onerror = (e) => reject(e);
-                });
-            };
-
-            let logoImg;
-            try {
-                logoImg = await loadImage("/images/titel.png");
-            } catch (e) {
-                console.error("Logo load failed", e);
-            }
-
-            // --- HEADER SECTION ---
-            doc.setFillColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
-            doc.rect(0, 0, 210, 50, 'F');
-            
-            // Decorative line
-            doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-            doc.rect(0, 47, 210, 3, 'F');
-
-            if (logoImg) {
-                const logoWidth = 45;
-                const logoHeight = (logoImg.height * logoWidth) / logoImg.width;
-                doc.addImage(logoImg, 'PNG', 20, 8, logoWidth, logoHeight);
-            } else {
-                doc.setTextColor(255, 255, 255);
-                doc.setFontSize(24);
-                doc.setFont("helvetica", "bold");
-                doc.text("MULTIVITAZ", 20, 25);
-            }
+            // Header
+            doc.setFillColor(245, 158, 11); // Amber-500
+            doc.rect(0, 0, 210, 40, 'F');
 
             doc.setTextColor(255, 255, 255);
-            doc.setFontSize(22);
+            doc.setFontSize(28);
             doc.setFont("helvetica", "bold");
-            doc.text("INVOICE", 190, 25, { align: "right" });
-            
-            doc.setFontSize(9);
-            doc.setFont("helvetica", "normal");
-            doc.text("Advanced Hair Grow+ Formula", 190, 32, { align: "right" });
+            doc.text("MULTIVITAZ", 105, 20, { align: "center" });
+            doc.setFontSize(12);
+            doc.text("Advanced Hair Grow+ Formula", 105, 30, { align: "center" });
 
-            // --- ORDER INFO BLOCKS ---
-            doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
-            
-            // Left Column: Bill To
-            doc.setFontSize(11);
-            doc.setFont("helvetica", "bold");
-            doc.text("BILL TO:", 20, 65);
-            
+            // Order Info
+            doc.setTextColor(51, 65, 85); // Slate-700
+            doc.setFontSize(16);
+            doc.text("ORDER RECEIPT", 20, 55);
+
             doc.setFontSize(10);
-            doc.setFont("helvetica", "bold");
-            doc.text(form.name, 20, 72);
             doc.setFont("helvetica", "normal");
-            doc.setTextColor(71, 85, 105); // Slate-600
-            doc.text(form.mobile, 20, 77);
-            doc.text(form.email, 20, 82);
-            const addressLines = doc.splitTextToSize(`${form.address}, ${form.city} - ${form.pincode}`, 80);
-            doc.text(addressLines, 20, 87);
+            doc.text(`Date: ${date}`, 140, 55);
+            doc.text(`Receipt ID: MVZ-${Math.floor(Math.random() * 1000000)}`, 140, 60);
+            if (orderId !== "N/A") doc.text(`Order ID: ${orderId}`, 140, 65);
 
-            // Right Column: Invoice Details
-            doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
-            doc.setFontSize(11);
+            // Customer Details
+            doc.setFontSize(12);
             doc.setFont("helvetica", "bold");
-            doc.text("INVOICE DETAILS:", 120, 65);
-            
-            doc.setFontSize(9);
+            doc.text("Customer Details:", 20, 75);
+            doc.setDrawColor(226, 232, 240);
+            doc.line(20, 77, 190, 77);
+
+            doc.setFontSize(10);
             doc.setFont("helvetica", "normal");
-            doc.setTextColor(71, 85, 105);
-            doc.text(`Date of Issue:`, 120, 72);
-            doc.text(date, 190, 72, { align: "right" });
-            
-            doc.text(`Receipt ID:`, 120, 77);
-            doc.text(`MVZ-${Math.floor(Math.random() * 1000000)}`, 190, 77, { align: "right" });
-            
-            if (orderId !== "N/A") {
-                doc.text(`Order ID:`, 120, 82);
-                doc.text(orderId, 190, 82, { align: "right" });
-            }
-            
-            doc.setFont("helvetica", "bold");
-            doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-            doc.text(`Payment Method:`, 120, 89);
-            doc.text(paymentMethod, 190, 89, { align: "right" });
+            doc.text(`Name: ${form.name}`, 25, 85);
+            doc.text(`Mobile: ${form.mobile}`, 25, 92);
+            doc.text(`Email: ${form.email}`, 25, 99);
+            doc.text(`Address: ${form.address}, ${form.city} - ${form.pincode}`, 25, 106);
 
-            // --- ORDER TABLE ---
-            const tableY = 110;
+            // Order Table
+            doc.setFontSize(12);
+            doc.setFont("helvetica", "bold");
+            doc.text("Order Summary:", 20, 120);
+
             doc.setFillColor(248, 250, 252); // Slate-50
-            doc.rect(20, tableY, 170, 10, 'F');
-            doc.setDrawColor(226, 232, 240); // Slate-200
-            doc.line(20, tableY, 190, tableY);
-            doc.line(20, tableY + 10, 190, tableY + 10);
-
-            doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
-            doc.setFontSize(9);
-            doc.setFont("helvetica", "bold");
-            doc.text("PRODUCT DESCRIPTION", 25, tableY + 6.5);
-            doc.text("QTY", 130, tableY + 6.5, { align: "center" });
-            doc.text("TOTAL PRICE", 185, tableY + 6.5, { align: "right" });
+            doc.rect(20, 125, 170, 10, 'F');
+            doc.setFontSize(10);
+            doc.text("Item", 25, 132);
+            doc.text("Qty", 120, 132);
+            doc.text("Amount", 160, 132);
 
             doc.setFont("helvetica", "normal");
-            doc.text(`MULTIVITAZ Hair Grow+ (${selectedVariant.label})`, 25, tableY + 18);
-            doc.text(`${isFreeVariant ? '1' : qty}`, 130, tableY + 18, { align: "center" });
-            doc.text(`Rs. ${isFreeVariant ? '0' : subtotal}`, 185, tableY + 18, { align: "right" });
-            
-            doc.line(20, tableY + 25, 190, tableY + 25);
+            doc.text(`MULTIVITAZ Hair Grow+ (${selectedVariant.label})`, 25, 145);
+            doc.text(`${isFreeVariant ? '1' : qty}`, 123, 145);
+            doc.text(`Rs. ${isFreeVariant ? '0' : subtotal}`, 160, 145);
 
-            // --- SUMMARY & TOTALS ---
-            const summaryY = tableY + 35;
-            
-            doc.setFontSize(10);
-            doc.setTextColor(71, 85, 105);
-            doc.text("Subtotal:", 140, summaryY);
-            doc.text(`Rs. ${subtotal}`, 185, summaryY, { align: "right" });
+            doc.line(20, 152, 190, 152);
+
+            // Totals
+            const totalY = 165;
+            doc.text("Subtotal:", 130, totalY);
+            doc.text(`Rs. ${subtotal}`, 165, totalY);
 
             if (extraDiscountAmount > 0) {
                 doc.setTextColor(22, 163, 74); // Green-600
-                doc.text(`Prepaid Discount (${extraDiscountPercent}%):`, 140, summaryY + 7);
-                doc.text(`- Rs. ${extraDiscountAmount}`, 185, summaryY + 7, { align: "right" });
+                doc.text(`Discount (${extraDiscountPercent}%):`, 130, totalY + 7);
+                doc.text(`- Rs. ${extraDiscountAmount}`, 165, totalY + 7);
+                doc.setTextColor(51, 65, 85);
             }
 
-            doc.setTextColor(71, 85, 105);
             if (isFreeVariant) {
-                doc.text("Delivery Charge:", 140, summaryY + 14);
-                doc.text(`Rs. ${deliveryCharge}`, 185, summaryY + 14, { align: "right" });
+                doc.text("Delivery Charge:", 130, totalY + 7);
+                doc.text(`Rs. ${deliveryCharge}`, 165, totalY + 7);
             } else {
-                doc.text("Delivery:", 140, summaryY + 14);
-                doc.text("FREE", 185, summaryY + 14, { align: "right" });
+                doc.text("Delivery:", 130, totalY + 14);
+                doc.text("FREE", 165, totalY + 14);
             }
 
-            // Grand Total Highlight
-            doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-            doc.rect(130, summaryY + 20, 60, 12, 'F');
-            doc.setTextColor(255, 255, 255);
-            doc.setFontSize(11);
-            doc.setFont("helvetica", "bold");
-            doc.text("TOTAL PAYOUT", 135, summaryY + 27.5);
-            doc.setFontSize(14);
-            doc.text(`Rs. ${grandTotal}`, 185, summaryY + 28, { align: "right" });
+            if (isFreeVariant) {
+                doc.text("Total Payable (Prepaid):", 130, totalY + 25);
+                doc.text(`Rs. ${grandTotal}`, 165, totalY + 25);
+            } else {
+                doc.text("Total Payable:", 130, totalY + 25);
+                doc.text(`Rs. ${grandTotal}`, 165, totalY + 25);
+            }
 
-            // --- FOOTER SECTION ---
-            const footerY = 240;
-            doc.setDrawColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-            doc.setLineWidth(0.5);
-            doc.line(20, footerY, 190, footerY);
-            
-            doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
+            // Footer
             doc.setFontSize(10);
-            doc.setFont("helvetica", "bold");
-            doc.text("Need Help? Contact Our Support Team", 105, footerY + 8, { align: "center" });
-            
-            doc.setFontSize(9);
-            doc.setFont("helvetica", "normal");
-            doc.setTextColor(71, 85, 105);
-            doc.text(`${SUPPORT_EMAIL}  |  +91 ${SUPPORT_PHONE}`, 105, footerY + 14, { align: "center" });
-            
-            doc.setFontSize(8);
-            doc.setTextColor(lightColor[0], lightColor[1], lightColor[2]);
-            doc.text("This is a computer generated receipt. Multivitaz ™ All Rights Reserved.", 105, footerY + 22, { align: "center" });
-            
-            // Branded Bottom Bar
-            doc.setFillColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
-            doc.rect(0, 280, 210, 17, 'F');
-            doc.setTextColor(255, 255, 255);
-            doc.setFontSize(9);
-            doc.text("Grow Stronger. Feel Better. MULTIVITAZ.", 105, 290, { align: "center" });
+            doc.setFont("helvetica", "italic");
+            doc.setTextColor(148, 163, 184); // Slate-400
+            doc.text("Thank you for choosing MULTIVITAZ!", 105, 200, { align: "center" });
+            doc.text("For any support, please contact us on WhatsApp.", 105, 205, { align: "center" });
 
             doc.save(`Multivitaz_Receipt_${form.name.replace(/\s+/g, '_')}.pdf`);
         } catch (error) {
@@ -512,11 +424,10 @@ export default function Home() {
         if (payment === "cod" && !isFreeVariant) {
             try {
                 // Auto-download receipt
-                await generateAndDownloadReceipt("N/A", "Cash on Delivery");
+                generateAndDownloadReceipt();
 
                 // Notify Admin via Email
-                // Notify Admin via Email (Background)
-                fetch('/api/send-email', {
+                await fetch('/api/send-email', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -528,14 +439,9 @@ export default function Home() {
                     })
                 }).catch(err => console.error("Email notification failed", err));
 
-                setSuccess(true);
+                window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`);
                 setOpen(false);
-                
-                // Automatic Redirect with small delay to ensure state is baked
-                setTimeout(() => {
-                    const finalUrl = `https://api.whatsapp.com/send?phone=${WHATSAPP_NUMBER}&text=${encodeURIComponent(msg)}`;
-                    window.location.assign(finalUrl);
-                }, 300);
+                setSuccess(true);
             } catch (err) {
                 console.error("COD processing error:", err);
                 setPaymentError('failed');
@@ -588,7 +494,7 @@ export default function Home() {
                         const verifyData = await verifyRes.json();
 
                         // Auto-download receipt
-                        await generateAndDownloadReceipt(response.razorpay_order_id, "Online Payment");
+                        generateAndDownloadReceipt(response.razorpay_order_id);
 
                         // Notify Admin via Email
                         fetch('/api/send-email', {
@@ -603,9 +509,7 @@ export default function Home() {
                             })
                         }).catch(err => console.error("Email notification failed", err));
 
-                        // Success State
-                        setSuccess(true);
-                        setOpen(false);
+                        window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`);
 
                         // Trial Claim logic
                         if (isFreeVariant) {
@@ -614,11 +518,8 @@ export default function Home() {
                             setVariant("30");
                         }
 
-                        // Automatic Redirect with small delay to ensure state is baked
-                        setTimeout(() => {
-                            const finalUrl = `https://api.whatsapp.com/send?phone=${WHATSAPP_NUMBER}&text=${encodeURIComponent(msg)}`;
-                            window.location.assign(finalUrl);
-                        }, 500); // Slightly longer for Razorpay context
+                        setOpen(false);
+                        setSuccess(true);
                     } catch (err) {
                         console.error("Verification failed:", err);
                         setPaymentError('failed');
@@ -1824,24 +1725,12 @@ export default function Home() {
                                     </div>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                                         <div className="relative group">
-                                            <Phone className={`absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 transition-colors ${form.mobile && !validateMobile(form.mobile) ? 'text-red-500' : 'text-slate-400 group-focus-within:text-amber-500'}`} />
-                                            <input 
-                                                placeholder="Mobile Number (10 Digits)" 
-                                                maxLength={10}
-                                                className={`w-full pl-10 sm:pl-11 pr-4 py-3 sm:py-3.5 bg-slate-50 border rounded-xl outline-none transition-all font-medium text-sm sm:text-base ${form.mobile && !validateMobile(form.mobile) ? 'border-red-300 focus:border-red-500 focus:ring-red-500/20' : 'border-slate-200 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20'}`} 
-                                                onChange={(e) => setForm({ ...form, mobile: e.target.value.replace(/\D/g, '') })} 
-                                                value={form.mobile}
-                                            />
+                                            <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-slate-400 transition-colors group-focus-within:text-amber-500" />
+                                            <input placeholder="Mobile Number" className="w-full pl-10 sm:pl-11 pr-4 py-3 sm:py-3.5 bg-slate-50 border border-slate-200 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 rounded-xl outline-none transition-all font-medium text-sm sm:text-base" onChange={(e) => setForm({ ...form, mobile: e.target.value })} />
                                         </div>
                                         <div className="relative group">
-                                            <Mail className={`absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 transition-colors ${form.email && !validateEmail(form.email) ? 'text-red-500' : 'text-slate-400 group-focus-within:text-amber-500'}`} />
-                                            <input 
-                                                placeholder="Email Address" 
-                                                type="email"
-                                                className={`w-full pl-10 sm:pl-11 pr-4 py-3 sm:py-3.5 bg-slate-50 border rounded-xl outline-none transition-all font-medium text-sm sm:text-base ${form.email && !validateEmail(form.email) ? 'border-red-300 focus:border-red-500 focus:ring-red-500/20' : 'border-slate-200 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20'}`} 
-                                                onChange={(e) => setForm({ ...form, email: e.target.value })} 
-                                                value={form.email}
-                                            />
+                                            <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-slate-400 transition-colors group-focus-within:text-amber-500" />
+                                            <input placeholder="Email Address" className="w-full pl-10 sm:pl-11 pr-4 py-3 sm:py-3.5 bg-slate-50 border border-slate-200 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 rounded-xl outline-none transition-all font-medium text-sm sm:text-base" onChange={(e) => setForm({ ...form, email: e.target.value })} />
                                         </div>
                                     </div>
                                     <div className="relative group">
@@ -1854,14 +1743,8 @@ export default function Home() {
                                             <input placeholder="City" className="w-full pl-10 sm:pl-11 pr-3 sm:pr-4 py-3 sm:py-3.5 bg-slate-50 border border-slate-200 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 rounded-xl outline-none transition-all font-medium text-sm sm:text-base" onChange={(e) => setForm({ ...form, city: e.target.value })} />
                                         </div>
                                         <div className="relative group">
-                                            <Hash className={`absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 transition-colors ${form.pincode && !validatePincode(form.pincode) ? 'text-red-500' : 'text-slate-400 group-focus-within:text-amber-500'}`} />
-                                            <input 
-                                                placeholder="Pincode (6 Digits)" 
-                                                maxLength={6}
-                                                className={`w-full pl-10 sm:pl-11 pr-3 sm:pr-4 py-3 sm:py-3.5 bg-slate-50 border rounded-xl outline-none transition-all font-medium text-sm sm:text-base ${form.pincode && !validatePincode(form.pincode) ? 'border-red-300 focus:border-red-500 focus:ring-red-500/20' : 'border-slate-200 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20'}`} 
-                                                onChange={(e) => setForm({ ...form, pincode: e.target.value.replace(/\D/g, '') })} 
-                                                value={form.pincode}
-                                            />
+                                            <Hash className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-slate-400 transition-colors group-focus-within:text-amber-500" />
+                                            <input placeholder="Pincode" className="w-full pl-10 sm:pl-11 pr-3 sm:pr-4 py-3 sm:py-3.5 bg-slate-50 border border-slate-200 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 rounded-xl outline-none transition-all font-medium text-sm sm:text-base" onChange={(e) => setForm({ ...form, pincode: e.target.value })} />
                                         </div>
                                     </div>
                                 </div>
