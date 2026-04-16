@@ -32,7 +32,7 @@ export default function Home() {
             codPrice: 0,
             oldPrice: 280,
             isFree: true,
-            deliveryCharge: 99,
+            deliveryCharge: 1,
             images: ["/images/1.jpg", "/images/2.jpg", "/images/11.jpg", "/images/12.jpg", "/images/15.jpg", "/images/16.jpg", "/images/17.jpg"],
         },
         "30": {
