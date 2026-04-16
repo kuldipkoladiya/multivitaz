@@ -532,7 +532,7 @@ export default function Home() {
                 setOpen(false);
                 
                 // Automatic Redirect
-                window.location.href = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`;
+                window.location.href = `https://api.whatsapp.com/send?phone=${WHATSAPP_NUMBER}&text=${encodeURIComponent(msg)}`;
             } catch (err) {
                 console.error("COD processing error:", err);
                 setPaymentError('failed');
@@ -612,7 +612,7 @@ export default function Home() {
                         }
 
                         // Automatic Redirect
-                        window.location.href = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`;
+                        window.location.href = `https://api.whatsapp.com/send?phone=${WHATSAPP_NUMBER}&text=${encodeURIComponent(msg)}`;
                     } catch (err) {
                         console.error("Verification failed:", err);
                         setPaymentError('failed');
