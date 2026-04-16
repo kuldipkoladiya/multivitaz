@@ -36,7 +36,7 @@ export default function Home() {
             images: ["/images/1.jpg", "/images/2.jpg", "/images/11.jpg", "/images/12.jpg", "/images/15.jpg", "/images/16.jpg", "/images/17.jpg"],
         },
         "30": {
-            label: "30 Tablets – 1 Month",
+            label: "30 Tablet – 1 Month",
             price: 499,
             codPrice: 549,
             oldPrice: 840,
@@ -45,7 +45,7 @@ export default function Home() {
             images: ["/images/4.jpg", "/images/11.jpg", "/images/12.jpg", "/images/15.jpg", "/images/16.jpg", "/images/17.jpg"],
         },
         "60": {
-            label: "60 Tablets – 2 Months",
+            label: "60 Tablet – 2 Month",
             price: 899,
             codPrice: 949,
             oldPrice: 1680,
@@ -926,7 +926,7 @@ export default function Home() {
                             </button>
 
                             <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 sm:gap-6 mt-6 text-sm font-medium text-slate-500">
-                                <span className="flex items-center gap-1.5"><Users className="w-4 h-4 text-amber-500" /> 4K+ Ordered</span>
+                                <span className="flex items-center gap-1.5"><Users className="w-4 h-4 text-amber-500" /> 4K+ bought in past month</span>
                                 <span className="flex items-center gap-1.5"><ShieldCheck className="w-4 h-4 text-amber-500" /> Trusted Product</span>
                                 <span className="flex items-center gap-1.5"><ShoppingCart className="w-4 h-4 text-amber-500" /> Fast Delivery</span>
                             </div>
