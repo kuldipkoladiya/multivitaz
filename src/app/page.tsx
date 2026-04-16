@@ -42,7 +42,7 @@ export default function Home() {
             oldPrice: 840,
             isFree: false,
             deliveryCharge: 0,
-            images: ["/images/4.jpg", "/images/11.jpg", "/images/12.jpg", "/images/13.jpg", "/images/15.jpg", "/images/16.jpg", "/images/17.jpg"],
+            images: ["/images/4.jpg", "/images/11.jpg", "/images/12.jpg", "/images/15.jpg", "/images/16.jpg", "/images/17.jpg"],
         },
         "60": {
             label: "60 Tablets – 2 Months",
@@ -51,7 +51,7 @@ export default function Home() {
             oldPrice: 1680,
             isFree: false,
             deliveryCharge: 0,
-            images: ["/images/10.jpg", "/images/11.jpg", "/images/12.jpg", "/images/13.jpg", "/images/15.jpg", "/images/16.jpg", "/images/17.jpg"],
+            images: ["/images/10.jpg", "/images/11.jpg", "/images/12.jpg", "/images/15.jpg", "/images/16.jpg", "/images/17.jpg"],
         },
     } as const;
 
