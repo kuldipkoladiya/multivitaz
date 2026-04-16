@@ -408,7 +408,7 @@ export default function Home() {
             if (variant === "trial") {
                 localStorage.setItem("multivitaz_trial_claimed", "true");
                 setTrialClaimed(true);
-                setVariant("30"); 
+                setVariant("30");
             }
 
             // Auto-download receipt
@@ -593,10 +593,14 @@ export default function Home() {
                             <Crown className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                             Premium Hair Care
                         </div>
-                        <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white leading-[1.1] tracking-tight">
-                            MULTIVITAZ{" "}
-                            <span className="bg-clip-text text-transparent bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-500">Hair Grow+</span>
-                        </h1>
+                        <motion.img
+                            initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            transition={{ duration: 0.6 }}
+                            src="/images/titel.png"
+                            alt="MULTIVITAZ Hair Grow+"
+                            className="w-full max-w-[280px] sm:max-w-[400px] md:max-w-[450px] lg:max-w-[500px] h-auto object-contain mb-2 md:mb-4"
+                        />
 
                         {/* Mobile Only Product Image - Shown after title on mobile */}
                         <div className="block md:hidden w-40 sm:w-48 mt-4 relative">
@@ -766,10 +770,16 @@ export default function Home() {
                                 Premium Biotin Advance Formula
                             </div>
 
-                            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-slate-900 leading-[1.1]">
-                                MULTIVITAZ <br className="hidden sm:block lg:hidden" />
-                                <span className="bg-clip-text text-transparent bg-gradient-to-r from-amber-600 to-yellow-500 block sm:inline mt-1 sm:mt-0">Hair Grow+ Tablets</span>
-                            </h1>
+                            <div className="flex justify-center lg:justify-start">
+                                <motion.img
+                                    initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                                    transition={{ duration: 0.5, delay: 0.3 }}
+                                    src="/images/titel.png"
+                                    alt="MULTIVITAZ Hair Grow+"
+                                    className="w-full max-w-[240px] sm:max-w-[320px] lg:max-w-[400px] h-auto object-contain"
+                                />
+                            </div>
 
                             <p className="text-sm sm:text-lg text-slate-600 mt-4 sm:mt-6 leading-relaxed max-w-lg mx-auto lg:mx-0">
                                 Advanced clinical-grade hair growth supplement meticulously crafted with Biotin, 18 vital amino acids, vitamins, and minerals for luscious, stronger hair.
@@ -1938,8 +1948,8 @@ export default function Home() {
                                     {paymentError === 'failed' ? 'Payment Failed' : 'Order Incomplete'}
                                 </h2>
                                 <p className="text-slate-500 text-sm sm:text-base font-medium leading-relaxed relative z-10 px-2">
-                                    {paymentError === 'failed' 
-                                        ? "There was an issue processing your transaction. Please try another payment method." 
+                                    {paymentError === 'failed'
+                                        ? "There was an issue processing your transaction. Please try another payment method."
                                         : "It looks like you didn't finish your payment. To claim your Multivitaz, please complete the order."}
                                 </p>
 
