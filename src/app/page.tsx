@@ -60,6 +60,8 @@ export default function Home() {
     const [payment, setPayment] = useState("upi");
     const [current, setCurrent] = useState(0);
     const [success, setSuccess] = useState(false);
+    const [paymentError, setPaymentError] = useState<null | 'failed' | 'incomplete'>(null);
+    const [activeVideo, setActiveVideo] = useState<any>(null);
 
     // ✅ FREE TRIAL CLAIMED TRACKING
     const [trialClaimed, setTrialClaimed] = useState(false);
@@ -440,6 +442,7 @@ export default function Home() {
             });
 
             const order = await res.json();
+            if (!order.id) throw new Error("Order creation failed");
 
             const options = {
                 key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
@@ -481,6 +484,12 @@ export default function Home() {
                     setSuccess(true);
                 },
 
+                modal: {
+                    ondismiss: function () {
+                        setPaymentError('incomplete');
+                    }
+                },
+
                 prefill: {
                     name: form.name,
                     email: form.email,
@@ -493,11 +502,16 @@ export default function Home() {
             };
 
             const rzp = new (window as any).Razorpay(options);
+            
+            rzp.on('payment.failed', function () {
+                setPaymentError('failed');
+            });
+
             rzp.open();
 
         } catch (err) {
             console.error(err);
-            alert("Payment failed");
+            setPaymentError('failed');
         }
 
         setOpen(false);
@@ -510,28 +524,7 @@ export default function Home() {
 
         const handleVideoAction = (e: React.MouseEvent) => {
             e.stopPropagation();
-            const video = videoRef.current;
-            if (!video) return;
-
-            try {
-                if (video.requestFullscreen) {
-                    video.requestFullscreen();
-                } else if ((video as any).webkitRequestFullscreen) {
-                    (video as any).webkitRequestFullscreen();
-                } else if ((video as any).msRequestFullscreen) {
-                    (video as any).msRequestFullscreen();
-                }
-            } catch (err) {
-                console.error("Fullscreen request failed", err);
-            }
-
-            if (!isPlaying) {
-                video.play().catch(err => console.error("Play failed", err));
-                setIsPlaying(true);
-            } else {
-                video.pause();
-                setIsPlaying(false);
-            }
+            setActiveVideo(vid);
         };
 
         return (
@@ -1912,6 +1905,66 @@ export default function Home() {
                 )}
             </AnimatePresence>
 
+            {/* ERROR MODAL */}
+            <AnimatePresence>
+                {paymentError && (
+                    <>
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[80] flex items-center justify-center p-4"
+                        >
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.9 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                exit={{ opacity: 0, scale: 0.9 }}
+                                transition={{ type: "spring", damping: 25 }}
+                                className="bg-white p-6 sm:p-8 rounded-[2rem] sm:rounded-[2.5rem] text-center max-w-sm w-full shadow-2xl relative overflow-hidden"
+                            >
+                                <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-red-50 to-transparent pointer-events-none" />
+                                <div className="w-20 h-20 sm:w-24 sm:h-24 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-5 sm:mb-6 relative z-10">
+                                    <X className="w-10 h-10 sm:w-12 sm:h-12 text-red-600" />
+                                </div>
+                                <h2 className="text-2xl sm:text-3xl font-black text-slate-900 mb-2 relative z-10">
+                                    {paymentError === 'failed' ? 'Payment Failed' : 'Order Incomplete'}
+                                </h2>
+                                <p className="text-slate-500 text-sm sm:text-base font-medium leading-relaxed relative z-10 px-2">
+                                    {paymentError === 'failed' 
+                                        ? "There was an issue processing your transaction. Please try another payment method." 
+                                        : "It looks like you didn't finish your payment. To claim your Multivitaz, please complete the order."}
+                                </p>
+
+                                <div className="space-y-3 mt-6 sm:mt-8 relative z-10">
+                                    <button
+                                        onClick={() => {
+                                            setPaymentError(null);
+                                            setOpen(true);
+                                        }}
+                                        className="bg-amber-600 hover:bg-amber-500 text-white font-bold w-full py-3.5 rounded-xl sm:rounded-2xl transition-all shadow-lg active:scale-95"
+                                    >
+                                        Try Again
+                                    </button>
+                                    <a
+                                        href={`https://wa.me/${WHATSAPP_NUMBER}`}
+                                        target="_blank"
+                                        className="block bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold w-full py-3.5 rounded-xl sm:rounded-2xl transition-all"
+                                    >
+                                        Need Help?
+                                    </a>
+                                    <button
+                                        onClick={() => setPaymentError(null)}
+                                        className="text-slate-400 text-xs font-bold hover:text-slate-600"
+                                    >
+                                        Close
+                                    </button>
+                                </div>
+                            </motion.div>
+                        </motion.div>
+                    </>
+                )}
+            </AnimatePresence>
+
             {/* POLICY MODAL */}
             <AnimatePresence>
                 {showPolicy && (
@@ -2026,6 +2079,44 @@ export default function Home() {
                                         Close
                                     </button>
                                 </div>
+                            </motion.div>
+                        </motion.div>
+                    </>
+                )}
+            </AnimatePresence>
+
+            {/* VIDEO MODAL */}
+            <AnimatePresence>
+                {activeVideo && (
+                    <>
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="fixed inset-0 bg-slate-900/80 backdrop-blur-xl z-[100] flex items-center justify-center p-4 sm:p-8"
+                            onClick={() => setActiveVideo(null)}
+                        >
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                                className="relative w-full max-w-sm aspect-[9/16] bg-black rounded-[2.5rem] overflow-hidden shadow-2xl border border-white/10"
+                                onClick={(e) => e.stopPropagation()}
+                            >
+                                <video
+                                    src={activeVideo.url}
+                                    className="w-full h-full object-cover"
+                                    autoPlay
+                                    loop
+                                    controls
+                                    playsInline
+                                />
+                                <button
+                                    onClick={() => setActiveVideo(null)}
+                                    className="absolute top-6 right-6 w-10 h-10 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white transition-all z-50"
+                                >
+                                    <X className="w-5 h-5" />
+                                </button>
                             </motion.div>
                         </motion.div>
                     </>
