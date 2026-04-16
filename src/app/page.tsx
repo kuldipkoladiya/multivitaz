@@ -450,10 +450,12 @@ export default function Home() {
                 currency: "INR",
                 order_id: order.id,
                 method: {
-                    upi: true,
+                    upi: {
+                        flow: "collect", // ✅ shows UPI ID input
+                    },
                     card: true,
                     netbanking: true,
-                    wallet: true
+                    wallet: true,
                 },
 
                 handler: async function (response: any) {
@@ -508,7 +510,7 @@ export default function Home() {
             };
 
             const rzp = new (window as any).Razorpay(options);
-            
+
             rzp.on('payment.failed', function () {
                 setPaymentError('failed');
             });
