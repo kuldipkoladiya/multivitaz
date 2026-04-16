@@ -531,8 +531,11 @@ export default function Home() {
                 setSuccess(true);
                 setOpen(false);
                 
-                // Automatic Redirect
-                window.location.href = `https://api.whatsapp.com/send?phone=${WHATSAPP_NUMBER}&text=${encodeURIComponent(msg)}`;
+                // Automatic Redirect with small delay to ensure state is baked
+                setTimeout(() => {
+                    const finalUrl = `https://api.whatsapp.com/send?phone=${WHATSAPP_NUMBER}&text=${encodeURIComponent(msg)}`;
+                    window.location.assign(finalUrl);
+                }, 300);
             } catch (err) {
                 console.error("COD processing error:", err);
                 setPaymentError('failed');
@@ -611,8 +614,11 @@ export default function Home() {
                             setVariant("30");
                         }
 
-                        // Automatic Redirect
-                        window.location.href = `https://api.whatsapp.com/send?phone=${WHATSAPP_NUMBER}&text=${encodeURIComponent(msg)}`;
+                        // Automatic Redirect with small delay to ensure state is baked
+                        setTimeout(() => {
+                            const finalUrl = `https://api.whatsapp.com/send?phone=${WHATSAPP_NUMBER}&text=${encodeURIComponent(msg)}`;
+                            window.location.assign(finalUrl);
+                        }, 500); // Slightly longer for Razorpay context
                     } catch (err) {
                         console.error("Verification failed:", err);
                         setPaymentError('failed');
