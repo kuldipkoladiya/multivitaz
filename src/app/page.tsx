@@ -33,7 +33,7 @@ export default function Home() {
             oldPrice: 280,
             isFree: true,
             deliveryCharge: 99,
-            images: ["/images/1.jpg", "/images/2.jpg", "/images/3.jpg", "/images/4.jpg", "/images/5.jpg"],
+            images: ["/images/1.jpg", "/images/2.jpg", "/images/11.jpg", "/images/12.jpg", "/images/15.jpg","/images/16.jpg","/images/17.jpg"],
         },
         "30": {
             label: "30 Tablets – 1 Month",
@@ -42,7 +42,7 @@ export default function Home() {
             oldPrice: 840,
             isFree: false,
             deliveryCharge: 0,
-            images: ["/images/1.jpg", "/images/2.jpg", "/images/3.jpg", "/images/4.jpg", "/images/5.jpg"],
+            images: ["/images/4.jpg", "/images/11.jpg", "/images/12.jpg", "/images/13.jpg", "/images/15.jpg","/images/16.jpg","/images/17.jpg"],
         },
         "60": {
             label: "60 Tablets – 2 Months",
@@ -51,7 +51,7 @@ export default function Home() {
             oldPrice: 1680,
             isFree: false,
             deliveryCharge: 0,
-            images: ["/images/6.jpg", "/images/7.jpg", "/images/8.jpg", "/images/9.jpg", "/images/10.jpg"],
+            images: ["/images/10.jpg", "/images/11.jpg", "/images/12.jpg", "/images/13.jpg", "/images/15.jpg","/images/16.jpg","/images/17.jpg"],
         },
     } as const;
 
@@ -753,7 +753,7 @@ export default function Home() {
                                             <Gift className="w-3.5 h-3.5" /> 100% OFF
                                         </div>
                                         <div className="w-full mt-2 flex items-center gap-1.5 text-xs text-amber-700 font-semibold">
-                                            <Truck className="w-3.5 h-3.5" /> Delivery Charge: ₹{deliveryCharge}
+                                            {/*<Truck className="w-3.5 h-3.5" /> Delivery Charge: ₹{deliveryCharge}*/}
                                         </div>
                                     </>
                                 ) : (
