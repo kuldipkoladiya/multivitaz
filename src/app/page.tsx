@@ -68,6 +68,7 @@ export default function Home() {
     const [success, setSuccess] = useState(false);
     const [paymentError, setPaymentError] = useState<null | 'failed' | 'incomplete'>(null);
     const [activeVideo, setActiveVideo] = useState<any>(null);
+    const [isProcessing, setIsProcessing] = useState(false);
 
     // ✅ FREE TRIAL CLAIMED TRACKING
     const [trialClaimed, setTrialClaimed] = useState(false);
@@ -268,13 +269,21 @@ export default function Home() {
         const interval = setInterval(() => {
             const randomName = names[Math.floor(Math.random() * names.length)];
             const randomCity = cities[Math.floor(Math.random() * cities.length)];
-            const randomQty = Math.floor(Math.random() * 3) + 1;
+            
+            // Pick a random variant
+            const variantKeys = Object.keys(variants);
+            const randomVariantKey = variantKeys[Math.floor(Math.random() * variantKeys.length)] as keyof typeof variants;
+            const randomVariant = variants[randomVariantKey];
+            const isTrial = randomVariant.isFree;
+            
+            const randomQty = isTrial ? 1 : Math.floor(Math.random() * 3) + 1;
 
             setNotification({
                 name: randomName,
                 city: randomCity,
                 qty: randomQty,
-                variant: selectedVariant.label,
+                variant: randomVariant.label,
+                isTrial: isTrial
             });
 
             setTimeout(() => {
@@ -403,47 +412,50 @@ export default function Home() {
         }
     };
     const handleOrder = async () => {
-        if (!isFormValid) return;
+        if (!isFormValid || isProcessing) return;
+
+        setIsProcessing(true);
 
         const msg = isFreeVariant
-            ? `🎁 FREE TRIAL Order\nProduct: MULTIVITAZ Hair Grow+\nVariant: ${selectedVariant.label}\n\n👤 Name: ${form.name}\n📱 Mobile: ${form.mobile}\n📧 Email: ${form.email}\n🏠 Address: ${form.address}\n🏙️ City: ${form.city}\n📍 Pincode: ${form.pincode}\n\n📦 Qty: 1\n💰 Product: FREE (₹0)\n🚚 Delivery Charge: ₹${deliveryCharge}\n💰 Total: ₹${deliveryCharge}\n💳 Payment: COD`
+            ? `🎁 FREE TRIAL Order\nProduct: MULTIVITAZ Hair Grow+\nVariant: ${selectedVariant.label}\n\n👤 Name: ${form.name}\n📱 Mobile: ${form.mobile}\n📧 Email: ${form.email}\n🏠 Address: ${form.address}\n🏙️ City: ${form.city}\n📍 Pincode: ${form.pincode}\n\n📦 Qty: 1\n💰 Product: FREE (₹0)\n🚚 Delivery Charge: ₹${deliveryCharge}\n💰 Total: ₹${deliveryCharge}\n💳 Payment: PREPAID`
             : `🛒 Order Details\nProduct: MULTIVITAZ Hair Grow+\nVariant: ${payment === 'upi' ? 'Prepaid Order' : 'COD Order'} ${selectedVariant.label}\n\n👤 Name: ${form.name}\n📱 Mobile: ${form.mobile}\n📧 Email: ${form.email}\n🏠 Address: ${form.address}\n🏙️ City: ${form.city}\n📍 Pincode: ${form.pincode}\n\n📦 Qty: ${qty}\n🚚 Delivery: FREE\n💰 Total: ₹${total}\n💳 Payment: ${payment}`;
 
+        // ✅ HANDLE COD (ONLY FOR PAID VARIANTS)
         if (payment === "cod" && !isFreeVariant) {
-            // Mark trial as claimed in localStorage if it was trial (though now trial is prepaid)
-            if (variant === "trial") {
-                localStorage.setItem("multivitaz_trial_claimed", "true");
-                setTrialClaimed(true);
-                setVariant("30");
+            try {
+                // Auto-download receipt
+                generateAndDownloadReceipt();
+
+                // Notify Admin via Email
+                await fetch('/api/send-email', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        ...form,
+                        variant: selectedVariant.label,
+                        qty: qty,
+                        total: grandTotal,
+                        payment: "COD"
+                    })
+                }).catch(err => console.error("Email notification failed", err));
+
+                window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`);
+                setOpen(false);
+                setSuccess(true);
+            } catch (err) {
+                console.error("COD processing error:", err);
+                setPaymentError('failed');
+            } finally {
+                setIsProcessing(false);
             }
-
-            // Auto-download receipt
-            generateAndDownloadReceipt();
-
-            // Notify Admin via Email
-            fetch('/api/send-email', {
-                method: 'POST',
-                body: JSON.stringify({
-                    ...form,
-                    variant: selectedVariant.label,
-                    qty: isFreeVariant ? 1 : qty,
-                    total: grandTotal,
-                    payment: isFreeVariant ? "Prepaid (Free Trial)" : payment.toUpperCase()
-                })
-            }).catch(err => console.error("Email notification failed", err));
-
-            window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`);
-            setOpen(false);
-            setSuccess(true);
             return;
         }
 
+        // ✅ HANDLE ONLINE PAYMENT (RAZORPAY)
         try {
             const res = await fetch("https://multivitaz-be.vercel.app/create-order", {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ amount: grandTotal }),
             });
 
@@ -455,52 +467,71 @@ export default function Home() {
                 amount: order.amount,
                 currency: "INR",
                 order_id: order.id,
+                name: "MULTIVITAZ",
+                description: "Premium Hair Care",
                 method: {
-                    upi: {
-                        flow: "collect", // ✅ shows UPI ID input
-                    },
+                    upi: { flow: "collect" },
                     card: true,
                     netbanking: true,
                     wallet: true,
                 },
 
                 handler: async function (response: any) {
-                    await fetch("https://multivitaz-be.vercel.app/verify-payment", {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-                        body: JSON.stringify({
-                            ...response,
-                            formData: form,
-                            qty: isFreeVariant ? 1 : qty,
-                            total: grandTotal,
-                            variant: selectedVariant.label,
-                        }),
-                    });
+                    try {
+                        // Strict Verification
+                        const verifyRes = await fetch("https://multivitaz-be.vercel.app/verify-payment", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                                ...response,
+                                formData: form,
+                                qty: isFreeVariant ? 1 : qty,
+                                total: grandTotal,
+                                variant: selectedVariant.label,
+                            }),
+                        });
 
-                    // Auto-download receipt
-                    generateAndDownloadReceipt(response.razorpay_order_id);
+                        const verifyData = await verifyRes.json();
+                        
+                        // Auto-download receipt
+                        generateAndDownloadReceipt(response.razorpay_order_id);
 
-                    // Notify Admin via Email
-                    fetch('/api/send-email', {
-                        method: 'POST',
-                        body: JSON.stringify({
-                            ...form,
-                            variant: selectedVariant.label,
-                            qty,
-                            total: grandTotal,
-                            payment: "UPI/ONLINE"
-                        })
-                    }).catch(err => console.error("Email notification failed", err));
+                        // Notify Admin via Email
+                        fetch('/api/send-email', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                ...form,
+                                variant: selectedVariant.label,
+                                qty: isFreeVariant ? 1 : qty,
+                                total: grandTotal,
+                                payment: "UPI/ONLINE"
+                            })
+                        }).catch(err => console.error("Email notification failed", err));
 
-                    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`);
-                    setSuccess(true);
+                        window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`);
+                        
+                        // Trial Claim logic
+                        if (isFreeVariant) {
+                            localStorage.setItem("multivitaz_trial_claimed", "true");
+                            setTrialClaimed(true);
+                            setVariant("30");
+                        }
+
+                        setOpen(false);
+                        setSuccess(true);
+                    } catch (err) {
+                        console.error("Verification failed:", err);
+                        setPaymentError('failed');
+                    } finally {
+                        setIsProcessing(false);
+                    }
                 },
 
                 modal: {
                     ondismiss: function () {
                         setPaymentError('incomplete');
+                        setIsProcessing(false);
                     }
                 },
 
@@ -510,25 +541,24 @@ export default function Home() {
                     contact: form.mobile,
                 },
 
-                theme: {
-                    color: "#b45309",
-                },
+                theme: { color: "#b45309" },
             };
 
             const rzp = new (window as any).Razorpay(options);
 
             rzp.on('payment.failed', function () {
                 setPaymentError('failed');
+                setIsProcessing(false);
             });
 
             rzp.open();
 
+            setIsProcessing(false);
         } catch (err) {
             console.error(err);
             setPaymentError('failed');
+            setIsProcessing(false);
         }
-
-        setOpen(false);
     };
 
     // Component for Individual Video to handle playing state easily
@@ -681,7 +711,7 @@ export default function Home() {
                                 <span className="font-bold text-slate-900">{notification.name}</span> from <span className="text-amber-700 font-semibold">{notification.city}</span>
                             </p>
                             <p className="text-slate-500 text-xs mt-0.5">
-                                Purchased {notification.qty}x {notification.variant}
+                                Purchased {!notification.isTrial && `${notification.qty}x `}{notification.variant}
                             </p>
                         </div>
                     </motion.div>
@@ -1560,7 +1590,7 @@ export default function Home() {
                                             <FacebookIcon className="w-5 h-5" />
                                         </div>
                                     </a>
-                                    <a href={`https://wa.me/${WHATSAPP_NUMBER}`} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-xl bg-[#25D366] p-0.5 group">
+                                    <a href="https://wa.me/message/MQHDA4QXNRFAG1" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-xl bg-[#25D366] p-0.5 group">
                                         <div className="w-full h-full bg-slate-900 rounded-[10px] flex items-center justify-center text-white group-hover:bg-transparent transition-all">
                                             <WhatsAppIcon className="w-5 h-5" />
                                         </div>
@@ -1858,16 +1888,21 @@ export default function Home() {
                             </div>
 
                             <button
-                                disabled={!isFormValid}
+                                disabled={!isFormValid || isProcessing}
                                 onClick={handleOrder}
-                                className={`w-full mt-5 sm:mt-6 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl font-black text-base sm:text-lg transition-all shadow-[0_10px_20px_-10px_rgba(0,0,0,0.2)] flex items-center justify-center gap-2 ${isFormValid
-                                    ? isFreeVariant
+                                className={`w-full mt-5 sm:mt-6 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl font-black text-base sm:text-lg transition-all shadow-[0_10px_20px_-10px_rgba(0,0,0,0.2)] flex items-center justify-center gap-2 ${!isFormValid || isProcessing
+                                    ? "bg-slate-200 text-slate-400 cursor-not-allowed"
+                                    : isFreeVariant
                                         ? "bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-slate-900 hover:-translate-y-1"
                                         : "bg-gradient-to-r from-amber-700 to-amber-600 hover:from-amber-600 hover:to-amber-500 text-white hover:-translate-y-1"
-                                    : "bg-slate-200 text-slate-400 cursor-not-allowed"
                                     }`}
                             >
-                                {isFreeVariant ? (
+                                {isProcessing ? (
+                                    <div className="flex items-center gap-2">
+                                        <RefreshCcw className="w-5 h-5 animate-spin" />
+                                        <span>Processing...</span>
+                                    </div>
+                                ) : isFreeVariant ? (
                                     <>
                                         <Gift className={`w-4 h-4 sm:w-5 sm:h-5 ${isFormValid ? "text-slate-900" : ""}`} />
                                         <span>Claim Free Trial</span>
