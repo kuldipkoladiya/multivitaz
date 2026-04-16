@@ -898,9 +898,9 @@ export default function Home() {
                             </button>
 
                             <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 sm:gap-6 mt-6 text-sm font-medium text-slate-500">
+                                <span className="flex items-center gap-1.5"><Users className="w-4 h-4 text-amber-500" /> 4K+ Ordered</span>
                                 <span className="flex items-center gap-1.5"><ShieldCheck className="w-4 h-4 text-amber-500" /> Trusted Product</span>
                                 <span className="flex items-center gap-1.5"><ShoppingCart className="w-4 h-4 text-amber-500" /> Fast Delivery</span>
-                                <span className="flex items-center gap-1.5"><Users className="w-4 h-4 text-amber-500" /> 4K+ Ordered</span>
                             </div>
                         </motion.div>
                     </div>
