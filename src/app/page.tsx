@@ -26,7 +26,7 @@ export default function Home() {
 
     const WhatsAppIcon = (props: any) => (
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" {...props}>
-            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.414 0 .018 5.396.015 12.03c0 2.12.559 4.191 1.62 6.06L0 24l6.117-1.604a11.845 11.845 0 005.932 1.577h.005c6.632 0 12.03-5.396 12.033-12.03a11.85 11.85 0 00-3.528-8.503z"/>
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.414 0 .018 5.396.015 12.03c0 2.12.559 4.191 1.62 6.06L0 24l6.117-1.604a11.845 11.845 0 005.932 1.577h.005c6.632 0 12.03-5.396 12.033-12.03a11.85 11.85 0 00-3.528-8.503z" />
         </svg>
     );
 
@@ -269,13 +269,13 @@ export default function Home() {
         const interval = setInterval(() => {
             const randomName = names[Math.floor(Math.random() * names.length)];
             const randomCity = cities[Math.floor(Math.random() * cities.length)];
-            
+
             // Pick a random variant
             const variantKeys = Object.keys(variants);
             const randomVariantKey = variantKeys[Math.floor(Math.random() * variantKeys.length)] as keyof typeof variants;
             const randomVariant = variants[randomVariantKey];
             const isTrial = randomVariant.isFree;
-            
+
             const randomQty = isTrial ? 1 : Math.floor(Math.random() * 3) + 1;
 
             setNotification({
@@ -311,7 +311,7 @@ export default function Home() {
         form.city &&
         form.pincode;
 
-    const generateAndDownloadReceipt = (orderId: string = "N/A") => {
+    const generateAndDownloadReceipt = (orderId: string = "N/A", paymentMethod: string = "Online") => {
         try {
             const doc = new jsPDF();
             const date = new Date().toLocaleString();
@@ -337,6 +337,7 @@ export default function Home() {
             doc.text(`Date: ${date}`, 140, 55);
             doc.text(`Receipt ID: MVZ-${Math.floor(Math.random() * 1000000)}`, 140, 60);
             if (orderId !== "N/A") doc.text(`Order ID: ${orderId}`, 140, 65);
+            doc.text(`Payment: ${paymentMethod}`, 140, (orderId !== "N/A" ? 70 : 65));
 
             // Customer Details
             doc.setFontSize(12);
@@ -391,13 +392,8 @@ export default function Home() {
                 doc.text("FREE", 165, totalY + 14);
             }
 
-            if (isFreeVariant) {
-                doc.text("Total Payable (Prepaid):", 130, totalY + 25);
-                doc.text(`Rs. ${grandTotal}`, 165, totalY + 25);
-            } else {
-                doc.text("Total Payable:", 130, totalY + 25);
-                doc.text(`Rs. ${grandTotal}`, 165, totalY + 25);
-            }
+            doc.text("Total Payout:", 130, totalY + 25);
+            doc.text(`Rs. ${grandTotal}`, 165, totalY + 25);
 
             // Footer
             doc.setFontSize(10);
@@ -424,10 +420,11 @@ export default function Home() {
         if (payment === "cod" && !isFreeVariant) {
             try {
                 // Auto-download receipt
-                generateAndDownloadReceipt();
+                generateAndDownloadReceipt("N/A", "Cash on Delivery");
 
                 // Notify Admin via Email
-                await fetch('/api/send-email', {
+                // Notify Admin via Email (Background)
+                fetch('/api/send-email', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -439,9 +436,11 @@ export default function Home() {
                     })
                 }).catch(err => console.error("Email notification failed", err));
 
-                window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`);
-                setOpen(false);
                 setSuccess(true);
+                setOpen(false);
+                
+                // Automatic Redirect
+                window.location.href = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`;
             } catch (err) {
                 console.error("COD processing error:", err);
                 setPaymentError('failed');
@@ -492,9 +491,9 @@ export default function Home() {
                         });
 
                         const verifyData = await verifyRes.json();
-                        
+
                         // Auto-download receipt
-                        generateAndDownloadReceipt(response.razorpay_order_id);
+                        generateAndDownloadReceipt(response.razorpay_order_id, "Online Payment");
 
                         // Notify Admin via Email
                         fetch('/api/send-email', {
@@ -509,8 +508,10 @@ export default function Home() {
                             })
                         }).catch(err => console.error("Email notification failed", err));
 
-                        window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`);
-                        
+                        // Success State
+                        setSuccess(true);
+                        setOpen(false);
+
                         // Trial Claim logic
                         if (isFreeVariant) {
                             localStorage.setItem("multivitaz_trial_claimed", "true");
@@ -518,8 +519,8 @@ export default function Home() {
                             setVariant("30");
                         }
 
-                        setOpen(false);
-                        setSuccess(true);
+                        // Automatic Redirect
+                        window.location.href = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`;
                     } catch (err) {
                         console.error("Verification failed:", err);
                         setPaymentError('failed');
