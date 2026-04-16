@@ -33,7 +33,7 @@ export default function Home() {
             oldPrice: 280,
             isFree: true,
             deliveryCharge: 99,
-            images: ["/images/1.jpg", "/images/2.jpg", "/images/11.jpg", "/images/12.jpg", "/images/15.jpg","/images/16.jpg","/images/17.jpg"],
+            images: ["/images/1.jpg", "/images/2.jpg", "/images/11.jpg", "/images/12.jpg", "/images/15.jpg", "/images/16.jpg", "/images/17.jpg"],
         },
         "30": {
             label: "30 Tablets – 1 Month",
@@ -42,7 +42,7 @@ export default function Home() {
             oldPrice: 840,
             isFree: false,
             deliveryCharge: 0,
-            images: ["/images/4.jpg", "/images/11.jpg", "/images/12.jpg", "/images/13.jpg", "/images/15.jpg","/images/16.jpg","/images/17.jpg"],
+            images: ["/images/4.jpg", "/images/11.jpg", "/images/12.jpg", "/images/13.jpg", "/images/15.jpg", "/images/16.jpg", "/images/17.jpg"],
         },
         "60": {
             label: "60 Tablets – 2 Months",
@@ -51,7 +51,7 @@ export default function Home() {
             oldPrice: 1680,
             isFree: false,
             deliveryCharge: 0,
-            images: ["/images/10.jpg", "/images/11.jpg", "/images/12.jpg", "/images/13.jpg", "/images/15.jpg","/images/16.jpg","/images/17.jpg"],
+            images: ["/images/10.jpg", "/images/11.jpg", "/images/12.jpg", "/images/13.jpg", "/images/15.jpg", "/images/16.jpg", "/images/17.jpg"],
         },
     } as const;
 
@@ -568,21 +568,35 @@ export default function Home() {
                 <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-yellow-600/15 rounded-full blur-[80px] translate-y-1/2 -translate-x-1/4 pointer-events-none" />
                 <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=%2260%22 height=%2260%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Ccircle cx=%2230%22 cy=%2230%22 r=%221%22 fill=%22rgba(251,191,36,0.08)%22/%3E%3C/svg%3E')] pointer-events-none" />
 
-                <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 md:py-8 flex flex-row items-center justify-between gap-2 md:gap-12 relative z-10">
+                <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 md:py-8 flex flex-col md:flex-row items-center justify-between gap-4 md:gap-12 relative z-10">
                     {/* Banner Text Content */}
-                    <div className="flex-1 text-center md:text-left">
-                        <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-500/20 text-amber-300 text-[10px] sm:text-xs font-bold tracking-widest uppercase mb-4 sm:mb-5 border border-amber-500/30 backdrop-blur-sm">
+                    <div className="flex-1 text-center md:text-left flex flex-col items-center md:items-start w-full">
+                        <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-500/20 text-amber-300 text-[10px] sm:text-xs font-bold tracking-widest uppercase mb-4 md:mb-5 border border-amber-500/30 backdrop-blur-sm">
                             <Crown className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                             Premium Hair Care
                         </div>
-                        <h1 className="text-xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white leading-[1.1] tracking-tight">
+                        <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white leading-[1.1] tracking-tight">
                             MULTIVITAZ{" "}
                             <span className="bg-clip-text text-transparent bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-500">Hair Grow+</span>
                         </h1>
-                        <p className="text-amber-100/70 mt-1 sm:mt-4 text-[10px] sm:text-base md:text-lg max-w-md mx-auto md:mx-0 leading-relaxed">
+
+                        {/* Mobile Only Product Image - Shown after title on mobile */}
+                        <div className="block md:hidden w-40 sm:w-48 mt-4 relative">
+                            <div className="absolute inset-0 bg-gradient-to-t from-amber-500/30 to-transparent rounded-full blur-2xl pointer-events-none" />
+                            <motion.img
+                                initial={{ opacity: 0, scale: 0.9, y: 10 }}
+                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                transition={{ duration: 0.6 }}
+                                src="/images/benner svg.svg"
+                                alt="Product"
+                                className="w-full h-auto object-contain relative z-10 drop-shadow-[0_10px_30px_rgba(245,158,11,0.4)]"
+                            />
+                        </div>
+
+                        <p className="text-amber-100/70 mt-3 sm:mt-4 text-[11px] sm:text-base md:text-lg max-w-md mx-auto md:mx-0 leading-relaxed">
                             Advanced clinical-grade formula with Biotin & 18 Amino Acids for thicker, stronger, healthier hair.
                         </p>
-                        <div className="flex flex-col sm:flex-row items-center gap-3 mt-2 sm:mt-7 justify-center md:justify-start">
+                        <div className="flex flex-col sm:flex-row items-center gap-3 mt-4 sm:mt-7 justify-center md:justify-start">
                             <button
                                 onClick={() => {
                                     if (trialClaimed) {
@@ -605,8 +619,8 @@ export default function Home() {
                         </div>
                     </div>
 
-                    {/* Banner Product Image */}
-                    <div className="flex-shrink-0 w-28 sm:w-56 md:w-72 lg:w-80 relative">
+                    {/* Banner Product Image - Hidden on mobile, shown on desktop */}
+                    <div className="hidden md:block flex-shrink-0 w-28 sm:w-56 md:w-72 lg:w-80 relative">
                         <div className="absolute inset-0 bg-gradient-to-t from-amber-500/30 to-transparent rounded-full blur-3xl pointer-events-none" />
                         <motion.img
                             initial={{ opacity: 0, scale: 0.9, y: 20 }}
