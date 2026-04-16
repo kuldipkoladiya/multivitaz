@@ -1345,7 +1345,7 @@ export default function Home() {
                                     className="relative"
                                 >
                                     <div className="aspect-[4/5] rounded-[3rem] overflow-hidden shadow-2xl relative z-10">
-                                        <img src="/images/result1.png" alt="Deep Root Nourishment" className="w-full h-full object-cover" />
+                                        <img src="/images/male_phase_1.png" alt="Deep Root Nourishment" className="w-full h-full object-cover" />
                                     </div>
                                     <div className="absolute -bottom-8 -left-8 w-64 h-64 bg-amber-100 rounded-full blur-3xl -z-10 opacity-60" />
                                 </motion.div>
