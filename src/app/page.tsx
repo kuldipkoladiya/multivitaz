@@ -1000,9 +1000,9 @@ export default function Home() {
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
                         {[
-                            { before: "/images/11.jpg", after: "/images/12.jpg", name: "Rahul M.", duration: "8 Weeks", rating: 5 },
-                            { before: "/images/13.jpg", after: "/images/15.jpg", name: "Amit K.", duration: "12 Weeks", rating: 5 },
-                            { before: "/images/16.jpg", after: "/images/17.jpg", name: "Vikram S.", duration: "6 Weeks", rating: 4 },
+                            { before: "/images/ba1.png", after: "/images/ba2.png", name: "Rahul M.", duration: "8 Weeks", rating: 5 },
+                            { before: "/images/ba3.png", after: "/images/ba4.png", name: "Riva K.", duration: "12 Weeks", rating: 5 },
+                            { before: "/images/ba5.png", after: "/images/ba6.png", name: "Vikram S.", duration: "6 Weeks", rating: 4 },
                         ].map((item, i) => (
                             <motion.div
                                 key={i}
