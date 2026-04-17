@@ -20,6 +20,7 @@ export async function POST(req: Request) {
             <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden;">
                 <div style="background-color: #f59e0b; padding: 20px; text-align: center;">
                     <h1 style="color: white; margin: 0;">New Order Received!</h1>
+                    <p style="color: #fef3c7; margin: 5px 0 0; font-weight: bold;">Order ID: ${orderData.orderId || 'N/A'}</p>
                 </div>
                 <div style="padding: 20px;">
                     <h2 style="color: #f59e0b; border-bottom: 2px solid #f59e0b; padding-bottom: 5px;">Customer Details</h2>
@@ -57,6 +58,10 @@ export async function POST(req: Request) {
                     <div style="margin: 30px 0; padding: 20px; background-color: #fffbeb; border-radius: 12px; border: 1px solid #fef3c7;">
                         <h3 style="margin-top: 0; color: #b45309; font-size: 18px;">Order Summary</h3>
                         <table style="width: 100%; border-collapse: collapse;">
+                            <tr>
+                                <td style="padding: 8px 0; color: #718096;">Order ID:</td>
+                                <td style="padding: 8px 0; text-align: right; font-weight: 700; color: #b45309;">${orderData.orderId || 'N/A'}</td>
+                            </tr>
                             <tr>
                                 <td style="padding: 8px 0; color: #718096;">Package:</td>
                                 <td style="padding: 8px 0; text-align: right; font-weight: 600;">${orderData.variant}</td>

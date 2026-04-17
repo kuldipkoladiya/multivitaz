@@ -10,26 +10,71 @@ import {
 } from "lucide-react";
 import jsPDF from "jspdf";
 
+// Social Icons as SVGs due to local lucide version limitations
+const InstagramIcon = (props: any) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+        <rect width="20" height="20" x="2" y="2" rx="5" ry="5" /><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" /><line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
+    </svg>
+);
+
+const FacebookIcon = (props: any) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+        <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
+    </svg>
+);
+
+const WhatsAppIcon = (props: any) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" {...props}>
+        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.414 0 .018 5.396.015 12.03c0 2.12.559 4.191 1.62 6.06L0 24l6.117-1.604a11.845 11.845 0 005.932 1.577h.005c6.632 0 12.03-5.396 12.033-12.03a11.85 11.85 0 00-3.528-8.503z" />
+    </svg>
+);
+
+const videos = [
+    { id: 1, url: "/videos/1.mp4", thumb: "/images/2.jpg", title: "Amazing Growth" },
+    { id: 2, url: "/videos/2.mp4", thumb: "/images/3.jpg", title: "2 Weeks Result" },
+    { id: 3, url: "/videos/3.mp4", thumb: "/images/4.jpg", title: "Thicker Hair Fast" },
+];
+
+// ✅ VIDEO CARD COMPONENT (Defined outside to prevent blinking/remounting on every timer update)
+const VideoCard = React.memo(({ vid, setActiveVideo }: { vid: any, setActiveVideo: (vid: any) => void }) => {
+    const videoRef = React.useRef<HTMLVideoElement | null>(null);
+
+    const handleVideoAction = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        setActiveVideo(vid);
+    };
+
+    return (
+        <div className="relative shrink-0 snap-center sm:snap-start w-80 sm:w-96 aspect-video rounded-3xl overflow-hidden bg-slate-900 group shadow-lg">
+            <video
+                ref={videoRef}
+                src={vid.url}
+                className="absolute inset-0 w-full h-full object-cover cursor-pointer hover:scale-105 transition-transform duration-500"
+                autoPlay
+                muted
+                loop
+                playsInline
+                onClick={handleVideoAction}
+            />
+
+            <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-5 bg-gradient-to-t from-black/90 via-black/40 to-transparent z-20 pointer-events-none">
+                <div className="flex items-center gap-2 mb-1">
+                    <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+                    <p className="font-bold text-sm sm:text-base text-white drop-shadow-md">{vid.title}</p>
+                </div>
+                <p className="text-xs text-slate-200 line-clamp-1 drop-shadow-md leading-relaxed opacity-80">Tap to watch full transformation</p>
+            </div>
+
+            <button
+                onClick={handleVideoAction}
+                className="absolute inset-0 w-full h-full z-30 opacity-0 cursor-pointer"
+                aria-label="Open Fullscreen"
+            />
+        </div>
+    );
+});
+
 export default function Home() {
-    // Social Icons as SVGs due to local lucide version limitations
-    const InstagramIcon = (props: any) => (
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-            <rect width="20" height="20" x="2" y="2" rx="5" ry="5" /><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" /><line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
-        </svg>
-    );
-
-    const FacebookIcon = (props: any) => (
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-            <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
-        </svg>
-    );
-
-    const WhatsAppIcon = (props: any) => (
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" {...props}>
-            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.414 0 .018 5.396.015 12.03c0 2.12.559 4.191 1.62 6.06L0 24l6.117-1.604a11.845 11.845 0 005.932 1.577h.005c6.632 0 12.03-5.396 12.033-12.03a11.85 11.85 0 00-3.528-8.503z"/>
-        </svg>
-    );
-
     // ✅ VARIANTS DATA
     const variants = {
         "trial": {
@@ -155,12 +200,6 @@ export default function Home() {
 
     const WHATSAPP_NUMBER = "918469387000";
 
-    // ✅ MOCK VIDEOS
-    const videos = [
-        { id: 1, url: "/videos/1.mp4", thumb: "/images/2.jpg", title: "Amazing Growth" },
-        { id: 2, url: "/videos/2.mp4", thumb: "/images/3.jpg", title: "2 Weeks Result" },
-        { id: 3, url: "/videos/3.mp4", thumb: "/images/4.jpg", title: "Thicker Hair Fast" },
-    ];
 
     const selectedVariant = variants[variant];
     const isUPI = payment === "upi";
@@ -335,100 +374,179 @@ export default function Home() {
         form.city.trim() !== "" &&
         /^\d{6}$/.test(form.pincode);
 
-    const generateAndDownloadReceipt = (orderId: string = "N/A") => {
+    const generateAndDownloadReceipt = async (orderId: string = "N/A", paymentMethod: string = "Online") => {
         try {
             const doc = new jsPDF();
             const date = new Date().toLocaleString();
+            const primaryColor = [245, 158, 11]; // Amber-500
+            const secondaryColor = [30, 41, 59]; // Slate-800
+            const lightColor = [148, 163, 184]; // Slate-400
 
-            // Header
-            doc.setFillColor(245, 158, 11); // Amber-500
-            doc.rect(0, 0, 210, 40, 'F');
+            // Load Logo
+            const loadImage = (url: string): Promise<HTMLImageElement> => {
+                return new Promise((resolve, reject) => {
+                    const img = new Image();
+                    img.crossOrigin = "Anonymous";
+                    img.src = url;
+                    img.onload = () => resolve(img);
+                    img.onerror = (e) => reject(e);
+                });
+            };
+
+            let logoImg;
+            try {
+                logoImg = await loadImage("/images/titel.png");
+            } catch (e) {
+                console.error("Logo load failed", e);
+            }
+
+            // --- HEADER SECTION ---
+            doc.setFillColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
+            doc.rect(0, 0, 210, 50, 'F');
+
+            // Decorative line
+            doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+            doc.rect(0, 47, 210, 3, 'F');
+
+            if (logoImg) {
+                const logoWidth = 45;
+                const logoHeight = (logoImg.height * logoWidth) / logoImg.width;
+                doc.addImage(logoImg, 'PNG', 20, 8, logoWidth, logoHeight);
+            } else {
+                doc.setTextColor(255, 255, 255);
+                doc.setFontSize(24);
+                doc.setFont("helvetica", "bold");
+                doc.text("MULTIVITAZ", 20, 25);
+            }
 
             doc.setTextColor(255, 255, 255);
-            doc.setFontSize(28);
+            doc.setFontSize(22);
             doc.setFont("helvetica", "bold");
-            doc.text("MULTIVITAZ", 105, 20, { align: "center" });
-            doc.setFontSize(12);
-            doc.text("Advanced Hair Grow+ Formula", 105, 30, { align: "center" });
+            doc.text("INVOICE", 190, 25, { align: "right" });
 
-            // Order Info
-            doc.setTextColor(51, 65, 85); // Slate-700
-            doc.setFontSize(16);
-            doc.text("ORDER RECEIPT", 20, 55);
+            doc.setFontSize(9);
+            doc.setFont("helvetica", "normal");
+            doc.text("Advanced Hair Grow+ Formula", 190, 32, { align: "right" });
+
+            // --- ORDER INFO BLOCKS ---
+            doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
+
+            // Left Column: Bill To
+            doc.setFontSize(11);
+            doc.setFont("helvetica", "bold");
+            doc.text("BILL TO:", 20, 65);
 
             doc.setFontSize(10);
-            doc.setFont("helvetica", "normal");
-            doc.text(`Date: ${date}`, 140, 55);
-            doc.text(`Receipt ID: MVZ-${Math.floor(Math.random() * 1000000)}`, 140, 60);
-            if (orderId !== "N/A") doc.text(`Order ID: ${orderId}`, 140, 65);
-
-            // Customer Details
-            doc.setFontSize(12);
             doc.setFont("helvetica", "bold");
-            doc.text("Customer Details:", 20, 75);
-            doc.setDrawColor(226, 232, 240);
-            doc.line(20, 77, 190, 77);
-
-            doc.setFontSize(10);
+            doc.text(form.name, 20, 72);
             doc.setFont("helvetica", "normal");
-            doc.text(`Name: ${form.name}`, 25, 85);
-            doc.text(`Mobile: ${form.mobile}`, 25, 92);
-            doc.text(`Email: ${form.email}`, 25, 99);
-            doc.text(`Address: ${form.address}, ${form.city} - ${form.pincode}`, 25, 106);
+            doc.setTextColor(71, 85, 105); // Slate-600
+            doc.text(form.mobile, 20, 77);
+            doc.text(form.email, 20, 82);
+            const addressLines = doc.splitTextToSize(`${form.address}, ${form.city} - ${form.pincode}`, 80);
+            doc.text(addressLines, 20, 87);
 
-            // Order Table
-            doc.setFontSize(12);
+            // Right Column: Invoice Details
+            doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
+            doc.setFontSize(11);
             doc.setFont("helvetica", "bold");
-            doc.text("Order Summary:", 20, 120);
+            doc.text("INVOICE DETAILS:", 120, 65);
 
+            doc.setFontSize(9);
+            doc.setFont("helvetica", "normal");
+            doc.setTextColor(71, 85, 105);
+            doc.text(`Date of Issue:`, 120, 72);
+            doc.text(date, 190, 72, { align: "right" });
+
+            doc.text(`Order ID:`, 120, 77);
+            doc.text(orderId !== "N/A" ? orderId : "N/A", 190, 77, { align: "right" });
+
+            doc.setFont("helvetica", "bold");
+            doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+            doc.text(`Payment Method:`, 120, 84);
+            doc.text(paymentMethod, 190, 84, { align: "right" });
+
+            // --- ORDER TABLE ---
+            const tableY = 110;
             doc.setFillColor(248, 250, 252); // Slate-50
-            doc.rect(20, 125, 170, 10, 'F');
-            doc.setFontSize(10);
-            doc.text("Item", 25, 132);
-            doc.text("Qty", 120, 132);
-            doc.text("Amount", 160, 132);
+            doc.rect(20, tableY, 170, 10, 'F');
+            doc.setDrawColor(226, 232, 240); // Slate-200
+            doc.line(20, tableY, 190, tableY);
+            doc.line(20, tableY + 10, 190, tableY + 10);
+
+            doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
+            doc.setFontSize(9);
+            doc.setFont("helvetica", "bold");
+            doc.text("PRODUCT DESCRIPTION", 25, tableY + 6.5);
+            doc.text("QTY", 130, tableY + 6.5, { align: "center" });
+            doc.text("TOTAL PRICE", 185, tableY + 6.5, { align: "right" });
 
             doc.setFont("helvetica", "normal");
-            doc.text(`MULTIVITAZ Hair Grow+ (${selectedVariant.label})`, 25, 145);
-            doc.text(`${isFreeVariant ? '1' : qty}`, 123, 145);
-            doc.text(`Rs. ${isFreeVariant ? '0' : subtotal}`, 160, 145);
+            doc.text(`MULTIVITAZ Hair Grow+ (${selectedVariant.label})`, 25, tableY + 18);
+            doc.text(`${isFreeVariant ? '1' : qty}`, 130, tableY + 18, { align: "center" });
+            doc.text(`Rs. ${isFreeVariant ? '0' : subtotal}`, 185, tableY + 18, { align: "right" });
 
-            doc.line(20, 152, 190, 152);
+            doc.line(20, tableY + 25, 190, tableY + 25);
 
-            // Totals
-            const totalY = 165;
-            doc.text("Subtotal:", 130, totalY);
-            doc.text(`Rs. ${subtotal}`, 165, totalY);
+            // --- SUMMARY & TOTALS ---
+            const summaryY = tableY + 35;
+
+            doc.setFontSize(10);
+            doc.setTextColor(71, 85, 105);
+            doc.text("Subtotal:", 140, summaryY);
+            doc.text(`Rs. ${subtotal}`, 185, summaryY, { align: "right" });
 
             if (extraDiscountAmount > 0) {
                 doc.setTextColor(22, 163, 74); // Green-600
-                doc.text(`Discount (${extraDiscountPercent}%):`, 130, totalY + 7);
-                doc.text(`- Rs. ${extraDiscountAmount}`, 165, totalY + 7);
-                doc.setTextColor(51, 65, 85);
+                doc.text(`Prepaid Discount (${extraDiscountPercent}%):`, 140, summaryY + 7);
+                doc.text(`- Rs. ${extraDiscountAmount}`, 185, summaryY + 7, { align: "right" });
             }
 
+            doc.setTextColor(71, 85, 105);
             if (isFreeVariant) {
-                doc.text("Delivery Charge:", 130, totalY + 7);
-                doc.text(`Rs. ${deliveryCharge}`, 165, totalY + 7);
+                doc.text("Delivery Charge:", 140, summaryY + 14);
+                doc.text(`Rs. ${deliveryCharge}`, 185, summaryY + 14, { align: "right" });
             } else {
-                doc.text("Delivery:", 130, totalY + 14);
-                doc.text("FREE", 165, totalY + 14);
+                doc.text("Delivery:", 140, summaryY + 14);
+                doc.text("FREE", 185, summaryY + 14, { align: "right" });
             }
 
-            if (isFreeVariant) {
-                doc.text("Total Payable (Prepaid):", 130, totalY + 25);
-                doc.text(`Rs. ${grandTotal}`, 165, totalY + 25);
-            } else {
-                doc.text("Total Payable:", 130, totalY + 25);
-                doc.text(`Rs. ${grandTotal}`, 165, totalY + 25);
-            }
+            // Grand Total Highlight
+            doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+            doc.rect(130, summaryY + 20, 60, 12, 'F');
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(11);
+            doc.setFont("helvetica", "bold");
+            doc.text("TOTAL PAYOUT", 135, summaryY + 27.5);
+            doc.setFontSize(14);
+            doc.text(`Rs. ${grandTotal}`, 185, summaryY + 28, { align: "right" });
 
-            // Footer
+            // --- FOOTER SECTION ---
+            const footerY = 240;
+            doc.setDrawColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+            doc.setLineWidth(0.5);
+            doc.line(20, footerY, 190, footerY);
+
+            doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
             doc.setFontSize(10);
-            doc.setFont("helvetica", "italic");
-            doc.setTextColor(148, 163, 184); // Slate-400
-            doc.text("Thank you for choosing MULTIVITAZ!", 105, 200, { align: "center" });
-            doc.text("For any support, please contact us on WhatsApp.", 105, 205, { align: "center" });
+            doc.setFont("helvetica", "bold");
+            doc.text("Need Help? Contact Our Support Team", 105, footerY + 8, { align: "center" });
+
+            doc.setFontSize(9);
+            doc.setFont("helvetica", "normal");
+            doc.setTextColor(71, 85, 105);
+            doc.text(`${SUPPORT_EMAIL}  |  +91 ${SUPPORT_PHONE}`, 105, footerY + 14, { align: "center" });
+
+            doc.setFontSize(8);
+            doc.setTextColor(lightColor[0], lightColor[1], lightColor[2]);
+            doc.text("This is a computer generated receipt. Multivitaz ™ All Rights Reserved.", 105, footerY + 22, { align: "center" });
+
+            // Branded Bottom Bar
+            doc.setFillColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
+            doc.rect(0, 280, 210, 17, 'F');
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(9);
+            doc.text("Grow Stronger. Feel Better. MULTIVITAZ.", 105, 290, { align: "center" });
 
             doc.save(`Multivitaz_Receipt_${form.name.replace(/\s+/g, '_')}.pdf`);
         } catch (error) {
@@ -440,15 +558,16 @@ export default function Home() {
 
         setIsProcessing(true);
 
-        const msg = isFreeVariant
-            ? `🎁 FREE TRIAL Order\nProduct: MULTIVITAZ Hair Grow+\nVariant: ${selectedVariant.label}\n\n👤 Name: ${form.name}\n📱 Mobile: ${form.mobile}\n📧 Email: ${form.email}\n🏠 Address: ${form.address}\n🏙️ City: ${form.city}\n📍 Pincode: ${form.pincode}\n\n📦 Qty: 1\n💰 Product: FREE (₹0)\n🚚 Delivery Charge: ₹${deliveryCharge}\n💰 Total: ₹${deliveryCharge}\n💳 Payment: PREPAID`
-            : `🛒 Order Details\nProduct: MULTIVITAZ Hair Grow+\nVariant: ${payment === 'upi' ? 'Prepaid Order' : 'COD Order'} ${selectedVariant.label}\n\n👤 Name: ${form.name}\n📱 Mobile: ${form.mobile}\n📧 Email: ${form.email}\n🏠 Address: ${form.address}\n🏙️ City: ${form.city}\n📍 Pincode: ${form.pincode}\n\n📦 Qty: ${qty}\n🚚 Delivery: FREE\n💰 Total: ₹${total}\n💳 Payment: ${payment}`;
+        const codOrderId = `MVZ-${(Date.now() % 1000).toString().padStart(3, '0')}${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`;
+        const orderSummaryMsg = isFreeVariant
+            ? `🎁 FREE TRIAL Order\nOrder ID: ${codOrderId}\nProduct: MULTIVITAZ Hair Grow+\nVariant: ${selectedVariant.label}\n\n👤 Name: ${form.name}\n📱 Mobile: ${form.mobile}\n📧 Email: ${form.email}\n🏠 Address: ${form.address}\n🏙️ City: ${form.city}\n📍 Pincode: ${form.pincode}\n\n📦 Qty: 1\n💰 Product: FREE (₹0)\n🚚 Delivery Charge: ₹${deliveryCharge}\n💰 Total: ₹${deliveryCharge}\n💳 Payment: PREPAID`
+            : `🛒 Order Details\nOrder ID: ${codOrderId}\nProduct: MULTIVITAZ Hair Grow+\nVariant: ${payment === 'upi' ? 'Prepaid Order' : 'COD Order'} ${selectedVariant.label}\n\n👤 Name: ${form.name}\n📱 Mobile: ${form.mobile}\n📧 Email: ${form.email}\n🏠 Address: ${form.address}\n🏙️ City: ${form.city}\n📍 Pincode: ${form.pincode}\n\n📦 Qty: ${qty}\n🚚 Delivery: FREE\n💰 Total: ₹${total}\n💳 Payment: ${payment}`;
 
         // ✅ HANDLE COD (ONLY FOR PAID VARIANTS)
         if (payment === "cod" && !isFreeVariant) {
             try {
                 // Auto-download receipt
-                generateAndDownloadReceipt();
+                await generateAndDownloadReceipt(codOrderId, "Cash on Delivery");
 
                 // Notify Admin via Email
                 await fetch('/api/send-email', {
@@ -459,11 +578,12 @@ export default function Home() {
                         variant: selectedVariant.label,
                         qty: qty,
                         total: grandTotal,
-                        payment: "COD"
+                        payment: "COD",
+                        orderId: codOrderId
                     })
                 }).catch(err => console.error("Email notification failed", err));
 
-                window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`);
+                window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(orderSummaryMsg)}`);
                 setOpen(false);
                 setSuccess(true);
             } catch (err) {
@@ -518,7 +638,7 @@ export default function Home() {
                         const verifyData = await verifyRes.json();
 
                         // Auto-download receipt
-                        generateAndDownloadReceipt(response.razorpay_order_id);
+                        await generateAndDownloadReceipt(response.razorpay_order_id, "Online Payment");
 
                         // Notify Admin via Email
                         fetch('/api/send-email', {
@@ -529,11 +649,12 @@ export default function Home() {
                                 variant: selectedVariant.label,
                                 qty: isFreeVariant ? 1 : qty,
                                 total: grandTotal,
-                                payment: "UPI/ONLINE"
+                                payment: "UPI/ONLINE",
+                                orderId: response.razorpay_order_id
                             })
                         }).catch(err => console.error("Email notification failed", err));
 
-                        window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`);
+                        window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(orderSummaryMsg.replace(codOrderId, response.razorpay_order_id))}`);
 
                         // Trial Claim logic
                         if (isFreeVariant) {
@@ -585,52 +706,6 @@ export default function Home() {
         }
     };
 
-    // Component for Individual Video to handle playing state easily
-    const VideoCard = ({ vid }: { vid: any }) => {
-        const [isPlaying, setIsPlaying] = useState(false);
-        const videoRef = useRef<HTMLVideoElement | null>(null);
-
-        const handleVideoAction = (e: React.MouseEvent) => {
-            e.stopPropagation();
-            setActiveVideo(vid);
-        };
-
-        return (
-            <div className="relative shrink-0 snap-center sm:snap-start w-64 sm:w-72 aspect-[9/16] rounded-[2rem] overflow-hidden bg-slate-900 group shadow-lg">
-                {!isPlaying && (
-                    <img src={vid.thumb} className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-40 transition-opacity duration-300 z-10" alt="Video Thumbnail" />
-                )}
-
-                <video
-                    ref={videoRef}
-                    src={vid.url}
-                    className="absolute inset-0 w-full h-full object-cover cursor-pointer"
-                    loop
-                    playsInline
-                    onClick={handleVideoAction}
-                />
-
-                {!isPlaying && (
-                    <div className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none">
-                        <button className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center group-hover:bg-amber-500 group-hover:scale-110 transition-all duration-300">
-                            <Play className="w-6 h-6 text-white ml-1 filter drop-shadow-md" />
-                        </button>
-                    </div>
-                )}
-
-                <div className={`absolute bottom-0 left-0 right-0 p-5 bg-gradient-to-t from-black/80 to-transparent z-20 pointer-events-none transition-opacity duration-300`}>
-                    <p className="font-bold text-sm text-white drop-shadow-md mb-1">{vid.title}</p>
-                    <p className="text-xs text-slate-200 line-clamp-2 drop-shadow-md leading-relaxed">See the real transformation.</p>
-                </div>
-
-                <button
-                    onClick={handleVideoAction}
-                    className="absolute inset-0 w-full h-full z-30 opacity-0 cursor-pointer"
-                    aria-label="Open Fullscreen"
-                />
-            </div>
-        );
-    };
 
     return (
         <div className="bg-[#fdf8f0] min-h-screen text-slate-800 font-sans selection:bg-amber-200 selection:text-amber-900 overflow-visible relative">
@@ -1006,7 +1081,7 @@ export default function Home() {
                     {/* Horizontal Scroller */}
                     <div className="flex overflow-x-auto gap-4 sm:gap-6 pb-6 px-1 snap-x snap-mandatory custom-scrollbar">
                         {videos.map((vid) => (
-                            <VideoCard key={vid.id} vid={vid} />
+                            <VideoCard key={vid.id} vid={vid} setActiveVideo={setActiveVideo} />
                         ))}
                     </div>
                 </div>
@@ -2219,12 +2294,12 @@ export default function Home() {
                                 initial={{ opacity: 0, scale: 0.9, y: 20 }}
                                 animate={{ opacity: 1, scale: 1, y: 0 }}
                                 exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                                className="relative w-full max-w-sm aspect-[9/16] bg-black rounded-[2.5rem] overflow-hidden shadow-2xl border border-white/10"
+                                className="relative w-[95%] max-w-4xl aspect-video bg-black rounded-3xl overflow-hidden shadow-2xl border border-white/10"
                                 onClick={(e) => e.stopPropagation()}
                             >
                                 <video
                                     src={activeVideo.url}
-                                    className="w-full h-full object-cover"
+                                    className="w-full h-full object-contain bg-black"
                                     autoPlay
                                     loop
                                     controls
@@ -2232,7 +2307,7 @@ export default function Home() {
                                 />
                                 <button
                                     onClick={() => setActiveVideo(null)}
-                                    className="absolute top-6 right-6 w-10 h-10 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white transition-all z-50"
+                                    className="absolute top-4 right-4 w-10 h-10 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white transition-all z-50"
                                 >
                                     <X className="w-5 h-5" />
                                 </button>
