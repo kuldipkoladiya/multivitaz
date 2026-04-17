@@ -755,7 +755,7 @@ export default function Home() {
                 <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-yellow-600/15 rounded-full blur-[80px] translate-y-1/2 -translate-x-1/4 pointer-events-none" />
                 <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=%2260%22 height=%2260%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Ccircle cx=%2230%22 cy=%2230%22 r=%221%22 fill=%22rgba(251,191,36,0.08)%22/%3E%3C/svg%3E')] pointer-events-none" />
 
-                <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-6 md:pt-8 flex flex-col md:flex-row items-center md:items-end justify-between gap-4 md:gap-12 relative z-10">
+                <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 md:py-8 flex flex-col md:flex-row items-center justify-between gap-4 md:gap-12 relative z-10">
                     {/* Banner Text Content */}
                     <div className="flex-1 text-center md:text-left flex flex-col items-center md:items-start w-full">
                         <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-500/20 text-amber-300 text-[10px] sm:text-xs font-bold tracking-widest uppercase mb-4 md:mb-5 border border-amber-500/30 backdrop-blur-sm">
@@ -771,7 +771,18 @@ export default function Home() {
                             className="w-full max-w-[280px] sm:max-w-[400px] md:max-w-[450px] lg:max-w-[500px] h-auto object-contain mb-2 md:mb-4"
                         />
 
-
+                        {/* Mobile Only Product Image - Shown after title on mobile */}
+                        <div className="block md:hidden w-40 sm:w-48 mt-4 relative">
+                            <div className="absolute inset-0 bg-gradient-to-t from-amber-500/30 to-transparent rounded-full blur-2xl pointer-events-none" />
+                            <motion.img
+                                initial={{ opacity: 0, scale: 0.9, y: 10 }}
+                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                transition={{ duration: 0.6 }}
+                                src="/images/benner svg.svg"
+                                alt="Product"
+                                className="w-full h-auto object-contain relative z-10 drop-shadow-[0_10px_30px_rgba(245,158,11,0.4)]"
+                            />
+                        </div>
 
                         <p className="text-amber-100/70 mt-3 sm:mt-4 text-[11px] sm:text-base md:text-lg max-w-md mx-auto md:mx-0 leading-relaxed">
                             Advanced Clinical-Grade Formula with Biotin & 18 Amino Acids for Thicker, Stronger, Healthier Hair.
@@ -792,36 +803,23 @@ export default function Home() {
                                 {trialClaimed ? "Get 30 Tablets Pack" : "Get FREE 10-Day Trial"}
                             </button>
                         </div>
-                        <div className="flex flex-wrap items-center gap-3 sm:gap-6 mt-5 sm:mt-6 justify-center md:justify-start pb-6 md:pb-8">
+                        <div className="flex flex-wrap items-center gap-3 sm:gap-6 mt-5 sm:mt-6 justify-center md:justify-start">
                             <span className="flex items-center gap-1.5 text-amber-200/60 text-xs font-medium"><ShieldCheck className="w-3.5 h-3.5 text-amber-400/60" /> GMP Certified</span>
                             <span className="flex items-center gap-1.5 text-amber-200/60 text-xs font-medium"><Award className="w-3.5 h-3.5 text-amber-400/60" /> FSSAI Approved</span>
                             <span className="flex items-center gap-1.5 text-amber-200/60 text-xs font-medium"><Truck className="w-3.5 h-3.5 text-amber-400/60" /> Free Delivery</span>
                         </div>
-
-                        {/* Mobile Only Product Image - Moved to bottom */}
-                        <div className="block md:hidden w-64 sm:w-72 mt-2 relative self-center">
-                            <div className="absolute inset-0 bg-gradient-to-t from-amber-500/30 to-transparent rounded-full blur-3xl pointer-events-none" />
-                            <motion.img
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ duration: 0.8 }}
-                                src="/images/banner.png"
-                                alt="Product"
-                                className="w-full h-auto object-contain relative z-10"
-                            />
-                        </div>
                     </div>
 
                     {/* Banner Product Image - Hidden on mobile, shown on desktop */}
-                    <div className="hidden md:block flex-shrink-0 w-80 lg:w-[420px] relative">
+                    <div className="hidden md:block flex-shrink-0 w-28 sm:w-56 md:w-72 lg:w-80 relative">
                         <div className="absolute inset-0 bg-gradient-to-t from-amber-500/30 to-transparent rounded-full blur-3xl pointer-events-none" />
                         <motion.img
                             initial={{ opacity: 0, scale: 0.9, y: 20 }}
                             animate={{ opacity: 1, scale: 1, y: 0 }}
                             transition={{ duration: 0.8, ease: "easeOut" }}
-                            src="/images/banner.png"
+                            src="/images/benner svg.svg"
                             alt="MULTIVITAZ Hair Grow+ Product"
-                            className="w-full h-auto object-contain relative z-10"
+                            className="w-full h-auto object-contain relative z-10 drop-shadow-[0_20px_50px_rgba(245,158,11,0.3)]"
                         />
                     </div>
                 </div>
