@@ -114,6 +114,40 @@ export default function Home() {
     const [paymentError, setPaymentError] = useState<null | 'failed' | 'incomplete'>(null);
     const [activeVideo, setActiveVideo] = useState<any>(null);
     const [isProcessing, setIsProcessing] = useState(false);
+    const resultsScrollRef = useRef<HTMLDivElement | null>(null);
+
+    // ✅ AUTO-SLIDE RESULTS
+    useEffect(() => {
+        const interval = setInterval(() => {
+            if (resultsScrollRef.current) {
+                const { scrollLeft, clientWidth, scrollWidth } = resultsScrollRef.current;
+                const maxScroll = scrollWidth - clientWidth;
+
+                if (scrollLeft >= maxScroll - 20) {
+                    if ("scrollTo" in resultsScrollRef.current) {
+                        resultsScrollRef.current.scrollTo({left: 0, behavior: 'smooth'});
+                    }
+                } else {
+                    // Scroll by roughly one item width + gap
+                    const itemWidth = clientWidth < 640 ? 280 + 20 : 350 + 24;
+                    if ("scrollTo" in resultsScrollRef.current) {
+                        resultsScrollRef.current.scrollTo({left: scrollLeft + itemWidth, behavior: 'smooth'});
+                    }
+                }
+            }
+        }, 4000);
+        return () => clearInterval(interval);
+    }, []);
+
+    const scrollResults = (direction: 'left' | 'right') => {
+        if (resultsScrollRef.current) {
+            const { scrollLeft, clientWidth } = resultsScrollRef.current;
+            const scrollTo = direction === 'left' ? scrollLeft - clientWidth : scrollLeft + clientWidth;
+            if ("scrollTo" in resultsScrollRef.current) {
+                resultsScrollRef.current.scrollTo({left: scrollTo, behavior: 'smooth'});
+            }
+        }
+    };
 
     // ✅ FREE TRIAL CLAIMED TRACKING
     const [trialClaimed, setTrialClaimed] = useState(false);
@@ -751,7 +785,7 @@ export default function Home() {
                         </div>
 
                         <p className="text-amber-100/70 mt-3 sm:mt-4 text-[11px] sm:text-base md:text-lg max-w-md mx-auto md:mx-0 leading-relaxed">
-                            Advanced clinical-grade formula with Biotin & 18 Amino Acids for thicker, stronger, healthier hair.
+                            Advanced Clinical-Grade Formula with Biotin & 18 Amino Acids for Thicker, Stronger, Healthier Hair.
                         </p>
                         <div className="flex flex-col sm:flex-row items-center gap-3 mt-4 sm:mt-7 justify-center md:justify-start">
                             <button
@@ -917,7 +951,7 @@ export default function Home() {
                             </div>
 
                             <p className="text-sm sm:text-lg text-slate-600 mt-4 sm:mt-6 leading-relaxed max-w-lg mx-auto lg:mx-0">
-                                Advanced clinical-grade hair growth supplement meticulously crafted with Biotin, 18 vital amino acids, vitamins, and minerals for luscious, stronger hair.
+                                A Premium Hair Growth Formula Packed with Biotin, Vitamins, Minerals, and Amino acids that Nourishes Hair Roots, Reduces Hair Fall, and Supports Strong, Healthy Hair.
                             </p>
 
                             {/* PRICE */}
@@ -1070,21 +1104,21 @@ export default function Home() {
                 </div>
 
                 {/* VIDEOS SECTION */}
-                <div className="mt-12 sm:mt-16">
-                    <div className="flex items-center gap-3 mb-6 sm:mb-8 justify-center sm:justify-start">
-                        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-amber-100 flex items-center justify-center shrink-0">
-                            <Play className="w-5 h-5 sm:w-6 sm:h-6 text-amber-600 ml-1" />
-                        </div>
-                        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900">Real Transformations</h2>
-                    </div>
+                {/*<div className="mt-12 sm:mt-16">*/}
+                {/*    <div className="flex items-center gap-3 mb-6 sm:mb-8 justify-center sm:justify-start">*/}
+                {/*        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-amber-100 flex items-center justify-center shrink-0">*/}
+                {/*            <Play className="w-5 h-5 sm:w-6 sm:h-6 text-amber-600 ml-1" />*/}
+                {/*        </div>*/}
+                {/*        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900">Real Transformations</h2>*/}
+                {/*    </div>*/}
 
-                    {/* Horizontal Scroller */}
-                    <div className="flex overflow-x-auto gap-4 sm:gap-6 pb-6 px-1 snap-x snap-mandatory custom-scrollbar">
-                        {videos.map((vid) => (
-                            <VideoCard key={vid.id} vid={vid} setActiveVideo={setActiveVideo} />
-                        ))}
-                    </div>
-                </div>
+                {/*    /!* Horizontal Scroller *!/*/}
+                {/*    <div className="flex overflow-x-auto gap-4 sm:gap-6 pb-6 px-1 snap-x snap-mandatory custom-scrollbar">*/}
+                {/*        {videos.map((vid) => (*/}
+                {/*            <VideoCard key={vid.id} vid={vid} setActiveVideo={setActiveVideo} />*/}
+                {/*        ))}*/}
+                {/*    </div>*/}
+                {/*</div>*/}
 
                 {/* BEFORE & AFTER RESULTS SECTION */}
                 <section className="mt-12 sm:mt-16">
@@ -1093,80 +1127,88 @@ export default function Home() {
                             Before & After Results
                         </h2>
                         <p className="text-slate-600 max-w-2xl mx-auto text-sm sm:text-base">
-                            Real customers, real transformations. See the incredible difference MULTIVITAZ Hair Grow+ has made.
+                            Real customers, Real transformations. See the incredible difference MULTIVITAZ Hair Grow+ has made.
                         </p>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
-                        {[
-                            { before: "/images/ba1.png", after: "/images/ba2.png", name: "Rahul M.", duration: "8 Weeks", rating: 5 },
-                            { before: "/images/ba3.png", after: "/images/ba4.png", name: "Riva K.", duration: "6 Weeks", rating: 5 },
-                            { before: "/images/ba5.png", after: "/images/ba6.png", name: "Vikram S.", duration: "7 Weeks", rating: 4 },
-                        ].map((item, i) => (
-                            <motion.div
-                                key={i}
-                                initial={{ opacity: 0, y: 20 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                viewport={{ once: true }}
-                                transition={{ duration: 0.5, delay: i * 0.1 }}
-                                className="bg-white rounded-2xl sm:rounded-[2rem] overflow-hidden shadow-sm border border-slate-100 hover:shadow-xl hover:border-amber-200 transition-all duration-500 group"
-                            >
-                                {/* Images Row */}
-                                <div className="relative flex">
-                                    {/* Before */}
-                                    <div className="w-1/2 relative overflow-hidden">
-                                        <img
-                                            src={item.before}
-                                            alt={`Before - ${item.name}`}
-                                            className="w-full h-48 sm:h-56 object-cover group-hover:scale-105 transition-transform duration-700"
-                                        />
-                                        <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
-                                        <span className="absolute bottom-2 left-2 sm:bottom-3 sm:left-3 bg-red-500/90 backdrop-blur-sm text-white text-[10px] sm:text-xs font-black px-2.5 py-1 rounded-lg uppercase tracking-wider shadow-lg">
-                                            Before
-                                        </span>
+                    <div className="relative group mx-auto">
+                        <div
+                            ref={resultsScrollRef}
+                            className="flex overflow-x-auto gap-5 sm:gap-6 pb-8 px-1 snap-x snap-mandatory custom-scrollbar-hide scroll-smooth scrollbar-hide"
+                            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                        >
+                            {[
+                                { before: "/images/ba1.png", after: "/images/ba2.png", name: "Rahul Mishra", duration: "8 Weeks", rating: 5 },
+                                { before: "/images/ba3.png", after: "/images/ba4.png", name: "Riva Kapoor", duration: "6 Weeks", rating: 5 },
+                                { before: "/images/ba5.png", after: "/images/ba6.png", name: "Vikram Soni", duration: "7 Weeks", rating: 5 },
+                                { before: "/images/ba1.png", after: "/images/ba2.png", name: "Suresh Patel", duration: "10 Weeks", rating: 5 },
+                                { before: "/images/ba3.png", after: "/images/ba4.png", name: "Neha Singh", duration: "12 Weeks", rating: 5 },
+                            ].map((item, i) => (
+                                <motion.div
+                                    key={i}
+                                    initial={{ opacity: 0, y: 20 }}
+                                    whileInView={{ opacity: 1, y: 0 }}
+                                    viewport={{ once: true }}
+                                    transition={{ duration: 0.5, delay: i * 0.1 }}
+                                    className="bg-white rounded-2xl sm:rounded-[2rem] overflow-hidden shadow-sm border border-slate-100 hover:shadow-xl hover:border-amber-200 transition-all duration-500 group/card shrink-0 w-[280px] sm:w-[350px] lg:w-[380px] snap-center"
+                                >
+                                    {/* Images Row */}
+                                    <div className="relative flex">
+                                        {/* Before */}
+                                        <div className="w-1/2 relative overflow-hidden">
+                                            <img
+                                                src={item.before}
+                                                alt={`Before - ${item.name}`}
+                                                className="w-full h-48 sm:h-56 lg:h-64 object-cover group-hover/card:scale-105 transition-transform duration-700"
+                                            />
+                                            <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+                                            <span className="absolute bottom-2 left-2 sm:bottom-3 sm:left-3 bg-red-500/90 backdrop-blur-sm text-white text-[10px] sm:text-xs font-black px-2.5 py-1 rounded-lg uppercase tracking-wider shadow-lg">
+                                                Before
+                                            </span>
+                                        </div>
+
+                                        {/* Divider */}
+                                        <div className="absolute top-0 bottom-0 left-1/2 -translate-x-1/2 w-[3px] bg-white z-10 shadow-lg" />
+                                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white shadow-xl flex items-center justify-center border-2 border-amber-400">
+                                            <RefreshCcw className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-600" />
+                                        </div>
+
+                                        {/* After */}
+                                        <div className="w-1/2 relative overflow-hidden">
+                                            <img
+                                                src={item.after}
+                                                alt={`After - ${item.name}`}
+                                                className="w-full h-48 sm:h-56 lg:h-64 object-cover group-hover/card:scale-105 transition-transform duration-700"
+                                            />
+                                            <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+                                            <span className="absolute bottom-2 right-2 sm:bottom-3 sm:right-3 bg-amber-500/90 backdrop-blur-sm text-white text-[10px] sm:text-xs font-black px-2.5 py-1 rounded-lg uppercase tracking-wider shadow-lg">
+                                                After
+                                            </span>
+                                        </div>
                                     </div>
 
-                                    {/* Divider */}
-                                    <div className="absolute top-0 bottom-0 left-1/2 -translate-x-1/2 w-[3px] bg-white z-10 shadow-lg" />
-                                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white shadow-xl flex items-center justify-center border-2 border-amber-400">
-                                        <RefreshCcw className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-600" />
+                                    {/* Card Footer */}
+                                    <div className="p-4 sm:p-5">
+                                        <div className="flex items-center justify-between mb-2">
+                                            <h3 className="font-bold text-slate-900 text-sm sm:text-base">{item.name}</h3>
+                                            <span className="bg-amber-50 text-amber-700 text-[10px] sm:text-xs font-bold px-2.5 py-1 rounded-full border border-amber-200 flex items-center gap-1">
+                                                <Activity className="w-3 h-3" />
+                                                {item.duration}
+                                            </span>
+                                        </div>
+                                        <div className="flex items-center gap-1">
+                                            {[...Array(item.rating)].map((_, idx) => (
+                                                <Star key={idx} className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                                            ))}
+                                            {[...Array(5 - item.rating)].map((_, idx) => (
+                                                <Star key={idx} className="w-3.5 h-3.5 text-slate-200" />
+                                            ))}
+                                            <span className="text-[10px] sm:text-xs text-slate-400 ml-1 font-medium">Verified Result</span>
+                                        </div>
                                     </div>
-
-                                    {/* After */}
-                                    <div className="w-1/2 relative overflow-hidden">
-                                        <img
-                                            src={item.after}
-                                            alt={`After - ${item.name}`}
-                                            className="w-full h-48 sm:h-56 object-cover group-hover:scale-105 transition-transform duration-700"
-                                        />
-                                        <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
-                                        <span className="absolute bottom-2 right-2 sm:bottom-3 sm:right-3 bg-amber-500/90 backdrop-blur-sm text-white text-[10px] sm:text-xs font-black px-2.5 py-1 rounded-lg uppercase tracking-wider shadow-lg">
-                                            After
-                                        </span>
-                                    </div>
-                                </div>
-
-                                {/* Card Footer */}
-                                <div className="p-4 sm:p-5">
-                                    <div className="flex items-center justify-between mb-2">
-                                        <h3 className="font-bold text-slate-900 text-sm sm:text-base">{item.name}</h3>
-                                        <span className="bg-amber-50 text-amber-700 text-[10px] sm:text-xs font-bold px-2.5 py-1 rounded-full border border-amber-200 flex items-center gap-1">
-                                            <Activity className="w-3 h-3" />
-                                            {item.duration}
-                                        </span>
-                                    </div>
-                                    <div className="flex items-center gap-1">
-                                        {[...Array(item.rating)].map((_, idx) => (
-                                            <Star key={idx} className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                                        ))}
-                                        {[...Array(5 - item.rating)].map((_, idx) => (
-                                            <Star key={idx} className="w-3.5 h-3.5 text-slate-200" />
-                                        ))}
-                                        <span className="text-[10px] sm:text-xs text-slate-400 ml-1 font-medium">Verified Result</span>
-                                    </div>
-                                </div>
-                            </motion.div>
-                        ))}
+                                </motion.div>
+                            ))}
+                        </div>
                     </div>
 
                     {/* Bottom CTA for this section */}
