@@ -129,6 +129,30 @@ export default function Home() {
         pincode: "",
     });
 
+    const [errors, setErrors] = useState({
+        mobile: "",
+        email: "",
+        pincode: "",
+    });
+
+    const validateField = (field: string, value: string) => {
+        let error = "";
+        if (field === "email") {
+            if (value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+                error = "Enter a valid email address";
+            }
+        } else if (field === "mobile") {
+            if (value && !/^[6-9]\d{9}$/.test(value)) {
+                error = "Enter a valid 10-digit mobile number";
+            }
+        } else if (field === "pincode") {
+            if (value && !/^\d{6}$/.test(value)) {
+                error = "Enter a valid 6-digit pincode";
+            }
+        }
+        setErrors(prev => ({ ...prev, [field]: error }));
+    };
+
     const WHATSAPP_NUMBER = "918469387000";
 
     // ✅ MOCK VIDEOS
@@ -304,12 +328,12 @@ export default function Home() {
     };
 
     const isFormValid =
-        form.name &&
-        form.mobile &&
-        form.email &&
-        form.address &&
-        form.city &&
-        form.pincode;
+        form.name.trim() !== "" &&
+        /^[6-9]\d{9}$/.test(form.mobile) &&
+        /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email) &&
+        form.address.trim() !== "" &&
+        form.city.trim() !== "" &&
+        /^\d{6}$/.test(form.pincode);
 
     const generateAndDownloadReceipt = (orderId: string = "N/A") => {
         try {
@@ -1002,7 +1026,7 @@ export default function Home() {
                         {[
                             { before: "/images/ba1.png", after: "/images/ba2.png", name: "Rahul M.", duration: "8 Weeks", rating: 5 },
                             { before: "/images/ba3.png", after: "/images/ba4.png", name: "Riva K.", duration: "6 Weeks", rating: 5 },
-                            { before: "/images/ba5.png", after: "/images/ba6.png", name: "Vikram S.", duration: "12 Weeks", rating: 4 },
+                            { before: "/images/ba5.png", after: "/images/ba6.png", name: "Vikram S.", duration: "7 Weeks", rating: 4 },
                         ].map((item, i) => (
                             <motion.div
                                 key={i}
@@ -1725,12 +1749,35 @@ export default function Home() {
                                     </div>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                                         <div className="relative group">
-                                            <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-slate-400 transition-colors group-focus-within:text-amber-500" />
-                                            <input placeholder="Mobile Number" className="w-full pl-10 sm:pl-11 pr-4 py-3 sm:py-3.5 bg-slate-50 border border-slate-200 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 rounded-xl outline-none transition-all font-medium text-sm sm:text-base" onChange={(e) => setForm({ ...form, mobile: e.target.value })} />
+                                            <Phone className={`absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 transition-colors ${errors.mobile ? "text-red-400" : "text-slate-400 group-focus-within:text-amber-500"}`} />
+                                            <input
+                                                type="tel"
+                                                maxLength={10}
+                                                placeholder="Mobile Number"
+                                                className={`w-full pl-10 sm:pl-11 pr-4 py-3 sm:py-3.5 bg-slate-50 border ${errors.mobile ? "border-red-300 focus:border-red-500 focus:ring-red-500/20" : "border-slate-200 focus:border-amber-500 focus:ring-amber-500/20"} rounded-xl outline-none transition-all font-medium text-sm sm:text-base`}
+                                                value={form.mobile}
+                                                onChange={(e) => {
+                                                    const val = e.target.value.replace(/\D/g, "");
+                                                    setForm({ ...form, mobile: val });
+                                                    validateField("mobile", val);
+                                                }}
+                                            />
+                                            {errors.mobile && <p className="text-[10px] text-red-500 mt-1 ml-1 font-bold italic">{errors.mobile}</p>}
                                         </div>
                                         <div className="relative group">
-                                            <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-slate-400 transition-colors group-focus-within:text-amber-500" />
-                                            <input placeholder="Email Address" className="w-full pl-10 sm:pl-11 pr-4 py-3 sm:py-3.5 bg-slate-50 border border-slate-200 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 rounded-xl outline-none transition-all font-medium text-sm sm:text-base" onChange={(e) => setForm({ ...form, email: e.target.value })} />
+                                            <Mail className={`absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 transition-colors ${errors.email ? "text-red-400" : "text-slate-400 group-focus-within:text-amber-500"}`} />
+                                            <input
+                                                type="email"
+                                                placeholder="Email Address"
+                                                className={`w-full pl-10 sm:pl-11 pr-4 py-3 sm:py-3.5 bg-slate-50 border ${errors.email ? "border-red-300 focus:border-red-500 focus:ring-red-500/20" : "border-slate-200 focus:border-amber-500 focus:ring-amber-500/20"} rounded-xl outline-none transition-all font-medium text-sm sm:text-base`}
+                                                value={form.email}
+                                                onChange={(e) => {
+                                                    const val = e.target.value;
+                                                    setForm({ ...form, email: val });
+                                                    validateField("email", val);
+                                                }}
+                                            />
+                                            {errors.email && <p className="text-[10px] text-red-500 mt-1 ml-1 font-bold italic">{errors.email}</p>}
                                         </div>
                                     </div>
                                     <div className="relative group">
@@ -1743,8 +1790,20 @@ export default function Home() {
                                             <input placeholder="City" className="w-full pl-10 sm:pl-11 pr-3 sm:pr-4 py-3 sm:py-3.5 bg-slate-50 border border-slate-200 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 rounded-xl outline-none transition-all font-medium text-sm sm:text-base" onChange={(e) => setForm({ ...form, city: e.target.value })} />
                                         </div>
                                         <div className="relative group">
-                                            <Hash className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-slate-400 transition-colors group-focus-within:text-amber-500" />
-                                            <input placeholder="Pincode" className="w-full pl-10 sm:pl-11 pr-3 sm:pr-4 py-3 sm:py-3.5 bg-slate-50 border border-slate-200 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 rounded-xl outline-none transition-all font-medium text-sm sm:text-base" onChange={(e) => setForm({ ...form, pincode: e.target.value })} />
+                                            <Hash className={`absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 transition-colors ${errors.pincode ? "text-red-400" : "text-slate-400 group-focus-within:text-amber-500"}`} />
+                                            <input
+                                                type="tel"
+                                                maxLength={6}
+                                                placeholder="Pincode"
+                                                className={`w-full pl-10 sm:pl-11 pr-3 sm:pr-4 py-3 sm:py-3.5 bg-slate-50 border ${errors.pincode ? "border-red-300 focus:border-red-500 focus:ring-red-500/20" : "border-slate-200 focus:border-amber-500 focus:ring-amber-500/20"} rounded-xl outline-none transition-all font-medium text-sm sm:text-base`}
+                                                value={form.pincode}
+                                                onChange={(e) => {
+                                                    const val = e.target.value.replace(/\D/g, "");
+                                                    setForm({ ...form, pincode: val });
+                                                    validateField("pincode", val);
+                                                }}
+                                            />
+                                            {errors.pincode && <p className="text-[10px] text-red-500 mt-1 ml-1 font-bold italic">{errors.pincode}</p>}
                                         </div>
                                     </div>
                                 </div>
