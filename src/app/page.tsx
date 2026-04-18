@@ -162,7 +162,7 @@ export default function Home() {
     const [showPolicy, setShowPolicy] = useState<string | null>(null);
 
     const BUSINESS_NAME = "Medilio Enterprise Pvt. Ltd.";
-    const OFFICE_ADDRESS = "7015/C, 7th Floor, Bellagio Textile Market, Nr. Rajmahal AC Mall, Sitanagar Char Rasta, Punagam, Surat-395010";
+    // const OFFICE_ADDRESS = "7015/C, 7th Floor, Bellagio Textile Market, Nr. Rajmahal AC Mall, Sitanagar Char Rasta, Punagam, Surat-395010";
     const SUPPORT_EMAIL = "help.multivitaz@gmail.com";
     const SUPPORT_PHONE = "8849227299";
     const DELIVERY_TIMELINE = "4-5 business days across India";
@@ -1763,10 +1763,10 @@ export default function Home() {
                         <div>
                             <h3 className="text-white font-bold mb-6">Contact Us</h3>
                             <ul className="space-y-4">
-                                <li className="flex gap-3 text-slate-400 text-sm">
-                                    <MapPin className="w-5 h-5 text-amber-500 shrink-0" />
-                                    <span>{OFFICE_ADDRESS}</span>
-                                </li>
+                                {/*<li className="flex gap-3 text-slate-400 text-sm">*/}
+                                {/*    <MapPin className="w-5 h-5 text-amber-500 shrink-0" />*/}
+                                {/*    <span>{OFFICE_ADDRESS}</span>*/}
+                                {/*</li>*/}
                                 <li className="flex gap-3 text-slate-400 text-sm">
                                     <Mail className="w-4 h-4 text-amber-500 shrink-0" />
                                     <span>{SUPPORT_EMAIL}</span>
@@ -2285,7 +2285,7 @@ export default function Home() {
                                                     </div>
                                                     <div>
                                                         <h4 className="font-bold text-slate-900">Registered Office</h4>
-                                                        <p className="text-slate-500 mt-1">{OFFICE_ADDRESS}</p>
+                                                        {/*<p className="text-slate-500 mt-1">{OFFICE_ADDRESS}</p>*/}
                                                     </div>
                                                 </div>
                                                 <div className="flex gap-4 items-start">
