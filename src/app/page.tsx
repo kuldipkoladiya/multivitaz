@@ -608,6 +608,7 @@ export default function Home() {
             try {
                 // Auto-download receipt
                 await generateAndDownloadReceipt(codOrderId, "Cash on Delivery");
+                setLastOrderId(codOrderId);
 
                 // Notify Admin via Email
                 await fetch('/api/send-email', {
@@ -662,6 +663,10 @@ export default function Home() {
 
                 handler: async function (response: any) {
                     try {
+                        setIsProcessing(true);
+                        // Save the Order ID immediately to avoid losing it
+                        setLastOrderId(response.razorpay_order_id);
+
                         // Strict Verification
                         const verifyRes = await fetch("https://multivitaz-be.vercel.app/verify-payment", {
                             method: "POST",
@@ -676,6 +681,10 @@ export default function Home() {
                         });
 
                         const verifyData = await verifyRes.json();
+
+                        if (!verifyRes.ok || !verifyData.success) {
+                            throw new Error(verifyData.error || "Payment verification failed");
+                        }
 
                         // Auto-download receipt
                         await generateAndDownloadReceipt(response.razorpay_order_id, "Online Payment");
@@ -695,18 +704,12 @@ export default function Home() {
                                     orderId: response.razorpay_order_id
                                 })
                             });
-                            if (emailRes.ok) {
-                                setEmailStatus('success');
-                                setLastOrderId(response.razorpay_order_id);
-                            }
+                            if (emailRes.ok) setEmailStatus('success');
                             else setEmailStatus('error');
                         } catch (err) {
                             console.error("Email notification failed", err);
                             setEmailStatus('error');
                         }
-
-                        // We will also show an Email button in the success modal for redundancy
-                        // Auto WhatsApp open removed as per request "not WhatsApp button"
 
                         // Trial Claim logic
                         if (isFreeVariant) {
@@ -716,12 +719,13 @@ export default function Home() {
                         }
 
                         setOpen(false);
+                        // Hide full-page loader and show success modal
+                        setIsProcessing(false);
                         setSuccess(true);
                     } catch (err) {
                         console.error("Verification failed:", err);
-                        setPaymentError('failed');
-                    } finally {
                         setIsProcessing(false);
+                        setPaymentError('failed');
                     }
                 },
 
@@ -2151,6 +2155,49 @@ export default function Home() {
                             </button>
                         </motion.div>
                     </>
+                )}
+            </AnimatePresence>
+
+            {/* FULL PAGE LOADER */}
+            <AnimatePresence>
+                {isProcessing && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 bg-slate-900/80 backdrop-blur-xl z-[100] flex flex-col items-center justify-center p-6 text-center"
+                    >
+                        <div className="relative">
+                            <motion.div
+                                animate={{ rotate: 360 }}
+                                transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                                className="w-20 h-20 sm:w-24 sm:h-24 rounded-full border-4 border-amber-500/20 border-t-amber-500 shadow-[0_0_30px_rgba(245,158,11,0.2)]"
+                            />
+                            <motion.div
+                                animate={{ scale: [1, 1.1, 1] }}
+                                transition={{ duration: 2, repeat: Infinity }}
+                                className="absolute inset-0 flex items-center justify-center"
+                            >
+                                <Zap className="w-8 h-8 text-amber-500 fill-amber-500" />
+                            </motion.div>
+                        </div>
+                        <motion.h2 
+                            initial={{ y: 10, opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            transition={{ delay: 0.2 }}
+                            className="mt-8 text-xl sm:text-2xl font-black text-white tracking-tight"
+                        >
+                            Finalizing Your Order...
+                        </motion.h2>
+                        <motion.p 
+                            initial={{ y: 10, opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            transition={{ delay: 0.3 }}
+                            className="mt-2 text-amber-100/60 text-sm sm:text-base font-medium max-w-xs"
+                        >
+                            Please do not refresh or leave this page. We are confirming your payment and preparing your receipt.
+                        </motion.p>
+                    </motion.div>
                 )}
             </AnimatePresence>
 
