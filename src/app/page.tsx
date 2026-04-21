@@ -114,6 +114,8 @@ export default function Home() {
     const [paymentError, setPaymentError] = useState<null | 'failed' | 'incomplete'>(null);
     const [activeVideo, setActiveVideo] = useState<any>(null);
     const [isProcessing, setIsProcessing] = useState(false);
+    const [emailStatus, setEmailStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
+    const [lastOrderId, setLastOrderId] = useState<string | null>(null);
     const resultsScrollRef = useRef<HTMLDivElement | null>(null);
 
     // ✅ AUTO-SLIDE RESULTS
@@ -179,7 +181,7 @@ export default function Home() {
 
     // ✅ COUNTDOWN TIMER STATE
     const [timeLeft, setTimeLeft] = useState({
-        hours: 23,
+        hours: 2,
         minutes: 59,
         seconds: 59
     });
@@ -205,6 +207,7 @@ export default function Home() {
         email: "",
         address: "",
         city: "",
+        state: "",
         pincode: "",
     });
 
@@ -406,6 +409,7 @@ export default function Home() {
         /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email) &&
         form.address.trim() !== "" &&
         form.city.trim() !== "" &&
+        form.state.trim() !== "" &&
         /^\d{6}$/.test(form.pincode);
 
     const generateAndDownloadReceipt = async (orderId: string = "N/A", paymentMethod: string = "Online") => {
@@ -477,7 +481,7 @@ export default function Home() {
             doc.setTextColor(71, 85, 105); // Slate-600
             doc.text(form.mobile, 20, 77);
             doc.text(form.email, 20, 82);
-            const addressLines = doc.splitTextToSize(`${form.address}, ${form.city} - ${form.pincode}`, 80);
+            const addressLines = doc.splitTextToSize(`${form.address}, ${form.city}, ${form.state} - ${form.pincode}`, 80);
             doc.text(addressLines, 20, 87);
 
             // Right Column: Invoice Details
@@ -594,8 +598,10 @@ export default function Home() {
 
         const codOrderId = `MVZ-${(Date.now() % 1000).toString().padStart(3, '0')}${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`;
         const orderSummaryMsg = isFreeVariant
-            ? `🎁 FREE TRIAL Order\nOrder ID: ${codOrderId}\nProduct: MULTIVITAZ Hair Grow+\nVariant: ${selectedVariant.label}\n\n👤 Name: ${form.name}\n📱 Mobile: ${form.mobile}\n📧 Email: ${form.email}\n🏠 Address: ${form.address}\n🏙️ City: ${form.city}\n📍 Pincode: ${form.pincode}\n\n📦 Qty: 1\n💰 Product: FREE (₹0)\n🚚 Delivery Charge: ₹${deliveryCharge}\n💰 Total: ₹${deliveryCharge}\n💳 Payment: PREPAID`
-            : `🛒 Order Details\nOrder ID: ${codOrderId}\nProduct: MULTIVITAZ Hair Grow+\nVariant: ${payment === 'upi' ? 'Prepaid Order' : 'COD Order'} ${selectedVariant.label}\n\n👤 Name: ${form.name}\n📱 Mobile: ${form.mobile}\n📧 Email: ${form.email}\n🏠 Address: ${form.address}\n🏙️ City: ${form.city}\n📍 Pincode: ${form.pincode}\n\n📦 Qty: ${qty}\n🚚 Delivery: FREE\n💰 Total: ₹${total}\n💳 Payment: ${payment}`;
+            ? `🎁 FREE TRIAL Order\nOrder ID: ${codOrderId}\nProduct: MULTIVITAZ Hair Grow+\nVariant: ${selectedVariant.label}\n\n👤 Name: ${form.name}\n📱 Mobile: ${form.mobile}\n📧 Email: ${form.email}\n🏠 Address: ${form.address}\n🏙️ City: ${form.city}\n🏛️ State: ${form.state}\n📍 Pincode: ${form.pincode}\n\n📦 Qty: 1\n💰 Product: FREE (₹0)\n🚚 Delivery Charge: ₹${deliveryCharge}\n💰 Total: ₹${deliveryCharge}\n💳 Payment: PREPAID`
+            : `🛒 Order Details\nOrder ID: ${codOrderId}\nProduct: MULTIVITAZ Hair Grow+\nVariant: ${payment === 'upi' ? 'Prepaid Order' : 'COD Order'} ${selectedVariant.label}\n\n👤 Name: ${form.name}\n📱 Mobile: ${form.mobile}\n📧 Email: ${form.email}\n🏠 Address: ${form.address}\n🏙️ City: ${form.city}\n🏛️ State: ${form.state}\n📍 Pincode: ${form.pincode}\n\n📦 Qty: ${qty}\n🚚 Delivery: FREE\n💰 Total: ₹${total}\n💳 Payment: ${payment}`;
+
+        setEmailStatus('idle');
 
         // ✅ HANDLE COD (ONLY FOR PAID VARIANTS)
         if (payment === "cod" && !isFreeVariant) {
@@ -675,20 +681,32 @@ export default function Home() {
                         await generateAndDownloadReceipt(response.razorpay_order_id, "Online Payment");
 
                         // Notify Admin via Email
-                        fetch('/api/send-email', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                ...form,
-                                variant: selectedVariant.label,
-                                qty: isFreeVariant ? 1 : qty,
-                                total: grandTotal,
-                                payment: "UPI/ONLINE",
-                                orderId: response.razorpay_order_id
-                            })
-                        }).catch(err => console.error("Email notification failed", err));
+                        try {
+                            setEmailStatus('sending');
+                            const emailRes = await fetch('/api/send-email', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    ...form,
+                                    variant: selectedVariant.label,
+                                    qty: isFreeVariant ? 1 : qty,
+                                    total: grandTotal,
+                                    payment: "UPI/ONLINE",
+                                    orderId: response.razorpay_order_id
+                                })
+                            });
+                            if (emailRes.ok) {
+                                setEmailStatus('success');
+                                setLastOrderId(response.razorpay_order_id);
+                            }
+                            else setEmailStatus('error');
+                        } catch (err) {
+                            console.error("Email notification failed", err);
+                            setEmailStatus('error');
+                        }
 
-                        window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(orderSummaryMsg.replace(codOrderId, response.razorpay_order_id))}`);
+                        // We will also show an Email button in the success modal for redundancy
+                        // Auto WhatsApp open removed as per request "not WhatsApp button"
 
                         // Trial Claim logic
                         if (isFreeVariant) {
@@ -720,6 +738,19 @@ export default function Home() {
                     contact: form.mobile,
                 },
 
+                notes: {
+                    name: form.name,
+                    mobile: form.mobile,
+                    email: form.email,
+                    address: form.address,
+                    city: form.city,
+                    state: form.state,
+                    pincode: form.pincode,
+                    variant: selectedVariant.label,
+                    qty: isFreeVariant ? 1 : qty,
+                    total: grandTotal
+                },
+
                 theme: { color: "#b45309" },
             };
 
@@ -739,7 +770,29 @@ export default function Home() {
             setIsProcessing(false);
         }
     };
-
+    const resendEmail = async () => {
+        if (emailStatus === 'sending' || emailStatus === 'success') return;
+        try {
+            setEmailStatus('sending');
+            const res = await fetch('/api/send-email', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    ...form,
+                    variant: selectedVariant.label,
+                    qty: isFreeVariant ? 1 : qty,
+                    total: grandTotal,
+                    payment: payment === "cod" ? "COD" : "UPI/ONLINE",
+                    orderId: lastOrderId || `MVZ-RE-${Date.now().toString().slice(-6)}`,
+                    isResend: true
+                })
+            });
+            if (res.ok) setEmailStatus('success');
+            else setEmailStatus('error');
+        } catch (err) {
+            setEmailStatus('error');
+        }
+    };
 
     return (
         <div className="bg-[#fdf8f0] min-h-screen text-slate-800 font-sans selection:bg-amber-200 selection:text-amber-900 overflow-visible relative">
@@ -1907,6 +1960,10 @@ export default function Home() {
                                             <input placeholder="City" className="w-full pl-10 sm:pl-11 pr-3 sm:pr-4 py-3 sm:py-3.5 bg-slate-50 border border-slate-200 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 rounded-xl outline-none transition-all font-medium text-sm sm:text-base" onChange={(e) => setForm({ ...form, city: e.target.value })} />
                                         </div>
                                         <div className="relative group">
+                                            <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-slate-400 transition-colors group-focus-within:text-amber-500" />
+                                            <input placeholder="State" className="w-full pl-10 sm:pl-11 pr-3 sm:pr-4 py-3 sm:py-3.5 bg-slate-50 border border-slate-200 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 rounded-xl outline-none transition-all font-medium text-sm sm:text-base" onChange={(e) => setForm({ ...form, state: e.target.value })} />
+                                        </div>
+                                        <div className="relative group sm:col-span-2">
                                             <Hash className={`absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 transition-colors ${errors.pincode ? "text-red-400" : "text-slate-400 group-focus-within:text-amber-500"}`} />
                                             <input
                                                 type="tel"
@@ -2129,12 +2186,48 @@ export default function Home() {
                                     Thank you for choosing MULTIVITAZ. Your secret to healthier hair is on its way to you!
                                 </p>
 
-                                <button
-                                    onClick={() => setSuccess(false)}
-                                    className="mt-6 sm:mt-8 bg-gradient-to-r from-amber-700 to-amber-600 hover:from-amber-600 hover:to-amber-500 text-white font-bold w-full py-3.5 sm:py-4 rounded-xl sm:rounded-2xl transition-all shadow-lg active:scale-95 relative z-10"
-                                >
-                                    Done
-                                </button>
+                                <div className="space-y-4 relative z-10 mt-6 sm:mt-8">
+                                    {emailStatus === 'success' ? (
+                                        <div className="bg-green-50 border border-green-100 rounded-2xl p-4 flex items-center gap-3">
+                                            <div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center shrink-0">
+                                                <Mail className="w-5 h-5 text-white" />
+                                            </div>
+                                            <div className="text-left">
+                                                <p className="text-green-900 font-bold text-sm">Receipt Sent!</p>
+                                                <p className="text-green-700 text-xs">Check your email for order details.</p>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <button
+                                            onClick={resendEmail}
+                                            disabled={emailStatus === 'sending'}
+                                            className="bg-amber-600 hover:bg-amber-500 text-white font-bold w-full py-3.5 sm:py-4 rounded-xl sm:rounded-2xl transition-all shadow-lg active:scale-95 flex items-center justify-center gap-2 group"
+                                        >
+                                            <Mail className={`w-5 h-5 ${emailStatus === 'sending' ? 'animate-pulse' : 'group-hover:scale-110 transition-transform'}`} />
+                                            {emailStatus === 'sending' ? 'Sending Receipt...' : 'Send Order Receipt to Email'}
+                                        </button>
+                                    )}
+
+                                    <button
+                                        onClick={() => {
+                                            setSuccess(false);
+                                            setEmailStatus('idle');
+                                        }}
+                                        className="bg-slate-900 hover:bg-slate-800 text-white font-bold w-full py-3.5 sm:py-4 rounded-xl sm:rounded-2xl transition-all active:scale-95 flex items-center justify-center gap-2"
+                                    >
+                                        Done & Continue Shopping
+                                    </button>
+
+                                    <div className="pt-2 text-center">
+                                        <button
+                                            onClick={() => window.open(`https://wa.me/${WHATSAPP_NUMBER}`, '_blank')}
+                                            className="text-slate-400 hover:text-amber-600 text-xs font-bold transition-colors inline-flex items-center gap-1.5"
+                                        >
+                                            <MessageCircle className="w-3.5 h-3.5" />
+                                            Need help? Contact on WhatsApp
+                                        </button>
+                                    </div>
+                                </div>
                             </motion.div>
                         </motion.div>
                     </>
